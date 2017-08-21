@@ -27,9 +27,10 @@ namespace QA.DPC.PDFServer.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
-            services.Configure<ElasticSettings>(Configuration.GetSection("Elastic"));
+            services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
-            services.AddTransient<IElasticClient, ElasticClient>();
+            services.AddTransient<IDpcApiClient, DpcApiClient>();
+            services.AddTransient<IPdfTemplateSelector, PdfTemplateSelector>();
             services.AddMvc();
         }
 

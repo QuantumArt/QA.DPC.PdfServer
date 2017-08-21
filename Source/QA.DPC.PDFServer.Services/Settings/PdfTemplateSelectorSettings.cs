@@ -6,6 +6,6 @@ namespace QA.DPC.PDFServer.Services.Settings
 {
     public class PdfTemplateSelectorSettings
     {
-        public string[] PdfTemplateQueries { get; set; }
+        public string[] PdfTemplateFields { get; set; }
     }
 }
