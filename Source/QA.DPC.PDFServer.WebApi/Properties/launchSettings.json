@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/pdf/2203747?category=print",
+      "launchUrl": "api/pdf/1713794?category=test",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

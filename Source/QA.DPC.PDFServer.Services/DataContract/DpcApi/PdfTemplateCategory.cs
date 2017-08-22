@@ -1,6 +1,6 @@
-﻿namespace QA.DPC.PDFServer.Services.DataContract
+﻿namespace QA.DPC.PDFServer.Services.DataContract.DpcApi
 {
-    public class DpcPdfTemplateCategory
+    public class PdfTemplateCategory
     {
         public int Id { get; set; }
         public string Title { get; set; }

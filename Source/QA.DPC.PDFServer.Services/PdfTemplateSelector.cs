@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using QA.DPC.PDFServer.Services.DataContract;
+using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services
@@ -20,7 +21,7 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<DpcPdfTemplate> GetPdfTemplateId(int productId, string category)
+        public async Task<PdfTemplate> GetPdfTemplateId(int productId, string category)
         {
             var fields = new List<string> {"Id"};
             fields.AddRange(_settings.PdfTemplateFields);
@@ -40,8 +41,8 @@ namespace QA.DPC.PDFServer.Services
             }
 
             var distinctTemplateIds = templateSearchArray.SelectMany(x => x).Distinct().ToArray();
-            var templates = await _dpcApiClient.GetProducts<DpcPdfTemplate>("pdf", distinctTemplateIds, new[] {"*"});
-            var dpcPdfTemplates = templates as IList<DpcPdfTemplate> ?? templates.ToList();
+            var templates = await _dpcApiClient.GetProducts<PdfTemplate>("pdf", distinctTemplateIds, new[] {"*"});
+            var dpcPdfTemplates = templates as IList<PdfTemplate> ?? templates.ToList();
             for (var i = 0; i < templateSearchArray.Count; i++)
             {
                 var i1 = i;

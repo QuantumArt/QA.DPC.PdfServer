@@ -29,8 +29,10 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddOptions();
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
+            services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IPdfTemplateSelector, PdfTemplateSelector>();
+            services.AddTransient<IHtmlGenerator, HtmlGenerator>();
             services.AddMvc();
         }
 

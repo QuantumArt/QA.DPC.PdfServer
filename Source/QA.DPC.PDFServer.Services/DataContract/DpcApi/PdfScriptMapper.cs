@@ -1,12 +1,12 @@
 using System;
 
-namespace QA.DPC.PDFServer.Services.DataContract
+namespace QA.DPC.PDFServer.Services.DataContract.DpcApi
 {
-    public class DpcPdfScriptMapper
+    public class PdfScriptMapper
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public DpcFileInfo PdfScriptMapperFile { get; set; }
+        public FileInfo PdfScriptMapperFile { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

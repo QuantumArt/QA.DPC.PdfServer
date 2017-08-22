@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.DataContract;
+using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 
 namespace QA.DPC.PDFServer.Services
 {
     public interface IPdfTemplateSelector
     {
-        Task<DpcPdfTemplate> GetPdfTemplateId(int productId, string category);
+        Task<PdfTemplate> GetPdfTemplateId(int productId, string category);
     }
 }

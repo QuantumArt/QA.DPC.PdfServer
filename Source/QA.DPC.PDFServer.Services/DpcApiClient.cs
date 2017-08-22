@@ -34,6 +34,17 @@ namespace QA.DPC.PDFServer.Services
             return await MakeRequest(url);
         }
 
+        public async Task<T> GetProduct<T>(int id)
+        {
+            return await GetProduct<T>(id, false);
+        }
+
+        public async Task<T> GetProduct<T>(int id, bool allFields, string[] fields = null)
+        {
+            var productJson = await GetProductJson(id, allFields, fields);
+            return JsonConvert.DeserializeObject<T>(productJson);
+        }
+
         public async Task<string> GetProductsJson(string productType, int[] ids, string[] fields = null)
         {
            

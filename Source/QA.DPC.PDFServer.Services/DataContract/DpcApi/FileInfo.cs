@@ -1,6 +1,6 @@
-namespace QA.DPC.PDFServer.Services.DataContract
+namespace QA.DPC.PDFServer.Services.DataContract.DpcApi
 {
-    public class DpcFileInfo
+    public class FileInfo
     {
         public string Name { get; set; }
         public long FileSizeBytes { get; set; }
