@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DPC.PDFServer.WebApi", "QA.DPC.PDFServer.WebApi\QA.DPC.PDFServer.WebApi.csproj", "{54A95A28-EBF4-4150-8FC8-B564C3464B4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DPC.PDFServer.Services", "QA.DPC.PDFServer.Services\QA.DPC.PDFServer.Services.csproj", "{E30EAE9D-C33A-4F46-93C8-6250910EB586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QA.DPC.PDFServer.Services", "QA.DPC.PDFServer.Services\QA.DPC.PDFServer.Services.csproj", "{E30EAE9D-C33A-4F46-93C8-6250910EB586}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QA.DPC.PDFServer.PdfGenerator", "QA.DPC.PDFServer.PdfGenerator\QA.DPC.PDFServer.PdfGenerator.csproj", "{91EBAFAD-6063-40D8-930D-0CD54B4AAEA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{E30EAE9D-C33A-4F46-93C8-6250910EB586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E30EAE9D-C33A-4F46-93C8-6250910EB586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E30EAE9D-C33A-4F46-93C8-6250910EB586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91EBAFAD-6063-40D8-930D-0CD54B4AAEA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91EBAFAD-6063-40D8-930D-0CD54B4AAEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91EBAFAD-6063-40D8-930D-0CD54B4AAEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91EBAFAD-6063-40D8-930D-0CD54B4AAEA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

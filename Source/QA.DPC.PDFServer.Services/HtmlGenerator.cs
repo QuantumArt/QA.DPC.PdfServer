@@ -54,15 +54,14 @@ namespace QA.DPC.PDFServer.Services
                 TemplateEngine = pdfTemplate.PdfTemplateEngine
             };
             var generatedHtmlRelativeUrl = await MakeGenerateRequest(request);
-            var html = GetHtml(generatedHtmlRelativeUrl);
-            return string.Empty;
+            return await GetHtml(generatedHtmlRelativeUrl);
         }
 
-        private static async Task<string> GetHtml(string generatedHtmlRelativeUrl)
+        private async Task<string> GetHtml(string generatedHtmlRelativeUrl)
         {
             using (var client = new HttpClient())
             {
-                return await client.GetStringAsync(generatedHtmlRelativeUrl);
+                return await client.GetStringAsync($"{_settings.GenerateBaseUrl}/output/{generatedHtmlRelativeUrl}");
             }
         }
 
