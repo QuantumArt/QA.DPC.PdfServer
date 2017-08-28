@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
+using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services
@@ -27,9 +28,13 @@ namespace QA.DPC.PDFServer.Services
 
         public async Task<string> GenerateHtml(int productId, string category)
         {
-            var pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateId(productId, category);
+            var pdfTemplate = await _pdfTemplateSelector.GetPdfTemplate(productId, category);
+            if(pdfTemplate == null)
+                throw new TemplateNotFoundException();
             
             var productBase = await _client.GetProduct<DpcProductBase>(productId, false, new[] { "Id", "UpdateDate" });
+            if (productBase == null)
+                throw new GetProductJsonException();
             var productDownloadUrl = _client.GetProductJsonDownloadUrl(productId, true);
             var request = new GenerateHtmlRequest
             {
@@ -57,7 +62,7 @@ namespace QA.DPC.PDFServer.Services
             if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
                 return await GetHtml(response.RelativePath);
 
-            throw new Exception(response.Error?.Message ?? "Unknown error while generating html");
+            throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
         }
 
         private async Task<string> GetHtml(string generatedHtmlRelativeUrl)

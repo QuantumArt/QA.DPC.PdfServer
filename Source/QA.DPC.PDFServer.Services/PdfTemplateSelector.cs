@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using QA.DPC.PDFServer.Services.DataContract;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
+using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services
@@ -21,11 +22,13 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<PdfTemplate> GetPdfTemplateId(int productId, string category)
+        public async Task<PdfTemplate> GetPdfTemplate(int productId, string category)
         {
             var fields = new List<string> {"Id"};
             fields.AddRange(_settings.PdfTemplateFields);
             var productJson = await _dpcApiClient.GetProductJson(productId, false, fields.ToArray());
+            if(productJson == null)
+                throw new GetProductJsonException();
             var jObj = JObject.Parse(productJson);
             var templateSearchArray = new List<int[]>();
             
@@ -39,6 +42,8 @@ namespace QA.DPC.PDFServer.Services
                     templateSearchArray.Add(castedTokens);
                 }
             }
+            if(!templateSearchArray.Any())
+                throw new TemplateNotFoundException();
 
             var distinctTemplateIds = templateSearchArray.SelectMany(x => x).Distinct().ToArray();
             var templates = await _dpcApiClient.GetProducts<PdfTemplate>("pdf", distinctTemplateIds, new[] {"*"});
@@ -54,6 +59,7 @@ namespace QA.DPC.PDFServer.Services
                     return matchedTemplate;
             }
 
+            
             return null;
         }
     }

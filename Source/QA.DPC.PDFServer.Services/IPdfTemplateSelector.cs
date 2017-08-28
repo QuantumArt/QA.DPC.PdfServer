@@ -9,6 +9,6 @@ namespace QA.DPC.PDFServer.Services
 {
     public interface IPdfTemplateSelector
     {
-        Task<PdfTemplate> GetPdfTemplateId(int productId, string category);
+        Task<PdfTemplate> GetPdfTemplate(int productId, string category);
     }
 }

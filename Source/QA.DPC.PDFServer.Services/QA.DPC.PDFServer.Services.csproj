@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\QA.DPC.PDFServer.PdfGenerator\QA.DPC.PDFServer.PdfGenerator.csproj" />
   </ItemGroup>
 

@@ -2,12 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.Settings;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using QA.DPC.PDFServer.Services.Exceptions;
 
 namespace QA.DPC.PDFServer.Services
 {
@@ -31,7 +33,14 @@ namespace QA.DPC.PDFServer.Services
         public async Task<string> GetProductJson(int id, bool allFields, string[] fields = null)
         {
             var url = GetProductJsonDownloadUrl(id, allFields, fields);
-            return await MakeRequest(url);
+            try
+            {
+                return await MakeRequest(url);
+            }
+            catch (Exception ex)
+            {
+                throw new GetProductJsonException($"Get product json with id = {id} error.", ex);
+            }
         }
 
         public async Task<T> GetProduct<T>(int id)
@@ -47,8 +56,6 @@ namespace QA.DPC.PDFServer.Services
 
         public async Task<string> GetProductsJson(string productType, int[] ids, string[] fields = null)
         {
-           
-
             //вариант для получения одним запросом(когда починят).
             var url = $"{_settings.BaseUrl}/products/{productType}?Id={string.Join("{or}", ids)}";
 
