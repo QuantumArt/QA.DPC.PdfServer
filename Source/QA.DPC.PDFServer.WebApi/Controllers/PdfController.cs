@@ -39,24 +39,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 }
                 var outputDir = Path.Combine(_env.WebRootPath, "Output");
                 var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, outputDir);
-                return new JsonResult(new {success = true, pdfRelativePath = $"Output/{fileName}"});
+                return new JsonResult(new {success = true, pdfRelativePath = $"/Output/{fileName}"});
             }
             catch (Exception ex)
             {
                 return new JsonResult(new {success = false, error = ex.Message});
             }
-            
-            
-            
-            //Response.Headers.Add("Content-Type", "application/pdf");
-            //Response.Headers.Add("Content-Disposition",
-            //    $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
-             
-            //Response
-               //return new  FileContentResult(pdf, "application/pdf");
-            //return "value";
         }
-
-       
     }
 }

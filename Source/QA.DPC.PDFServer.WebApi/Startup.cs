@@ -45,6 +45,7 @@ namespace QA.DPC.PDFServer.WebApi
             }
 
             app.UseMvc();
+            app.UseStaticFiles();
         }
     }
 }
