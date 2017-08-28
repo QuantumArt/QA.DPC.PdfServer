@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
+using QA.DPC.PDFServer.Services.Settings;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,12 +20,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     public class PdfController : Controller
     {
         private readonly IHtmlGenerator _htmlGenerator;
-        private readonly IHostingEnvironment _env;
+        private readonly PdfStaticFilesSettings _pdfStaticFilesSettings;
 
-        public PdfController(IHtmlGenerator htmlGenerator, IHostingEnvironment env)
+        public PdfController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings)
         {
             _htmlGenerator = htmlGenerator;
-            _env = env;
+            _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
         }
 
         // GET api/pdf/5?category=print
@@ -37,9 +39,9 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 {
                     return new JsonResult(new {success = true, generatedHtml = generatedHtml});
                 }
-                var outputDir = Path.Combine(_env.WebRootPath, "Output");
-                var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, outputDir);
-                return new JsonResult(new {success = true, pdfRelativePath = $"/Output/{fileName}"});
+                
+                var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfStaticFilesSettings.RootOutputDirectory);
+                return new JsonResult(new {success = true, pdfRelativePath = $"{_pdfStaticFilesSettings.DirectoryRelativePath}/{fileName}"});
             }
             catch (Exception ex)
             {
