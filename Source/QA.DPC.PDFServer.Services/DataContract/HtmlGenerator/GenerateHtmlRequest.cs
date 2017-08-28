@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 
 namespace QA.DPC.PDFServer.Services.DataContract.HtmlGenerator
 {
+    [JsonObject]
     public class GenerateHtmlRequest
     {
         [JsonProperty(PropertyName = "tariffData")]

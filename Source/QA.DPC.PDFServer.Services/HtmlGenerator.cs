@@ -53,8 +53,11 @@ namespace QA.DPC.PDFServer.Services
                 },
                 TemplateEngine = pdfTemplate.PdfTemplateEngine
             };
-            var generatedHtmlRelativeUrl = await MakeGenerateRequest(request);
-            return await GetHtml(generatedHtmlRelativeUrl);
+            var response = await MakeGenerateRequest(request);
+            if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
+                return await GetHtml(response.RelativePath);
+
+            throw new Exception(response.Error?.Message ?? "Unknown error while generating html");
         }
 
         private async Task<string> GetHtml(string generatedHtmlRelativeUrl)
@@ -66,13 +69,15 @@ namespace QA.DPC.PDFServer.Services
         }
 
 
-        private async Task<string> MakeGenerateRequest(GenerateHtmlRequest request)
+        private async Task<GenerateHtmlResponse> MakeGenerateRequest(GenerateHtmlRequest request)
         {
             using (var client = new HttpClient())
             {
                 var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/generate",
                     new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-                return await result.Content.ReadAsStringAsync();
+
+                var stringResult = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<GenerateHtmlResponse>(stringResult);
             }
         }
 

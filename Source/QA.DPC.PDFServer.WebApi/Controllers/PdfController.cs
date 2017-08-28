@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
@@ -15,28 +18,42 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     public class PdfController : Controller
     {
         private readonly IHtmlGenerator _htmlGenerator;
-        private readonly IDpcApiClient _client;
-        private readonly IPdfTemplateSelector _pdfTemplateSelector;
+        private readonly IHostingEnvironment _env;
 
-        public PdfController(IHtmlGenerator htmlGenerator)
+        public PdfController(IHtmlGenerator htmlGenerator, IHostingEnvironment env)
         {
             _htmlGenerator = htmlGenerator;
-
-            
+            _env = env;
         }
 
         // GET api/pdf/5?category=print
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id, string category)
+        public async Task<ActionResult> Get(int id, string category, bool asHtml)
         {
-            var generatedHtml = await _htmlGenerator.GenerateHtml(id, category);
-            var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml);
+            try
+            {
+                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category);
+                if (asHtml)
+                {
+                    return new JsonResult(new {success = true, generatedHtml = generatedHtml});
+                }
+                var outputDir = Path.Combine(_env.WebRootPath, "Output");
+                var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, outputDir);
+                return new JsonResult(new {success = true, pdfRelativePath = $"Output/{fileName}"});
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new {success = false, error = ex.Message});
+            }
+            
+            
+            
             //Response.Headers.Add("Content-Type", "application/pdf");
             //Response.Headers.Add("Content-Disposition",
             //    $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
              
             //Response
-               return new  FileContentResult(pdf, "application/pdf");
+               //return new  FileContentResult(pdf, "application/pdf");
             //return "value";
         }
 
