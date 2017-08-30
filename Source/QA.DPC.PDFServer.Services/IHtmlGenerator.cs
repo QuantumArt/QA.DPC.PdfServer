@@ -7,6 +7,6 @@ namespace QA.DPC.PDFServer.Services
 {
     public interface IHtmlGenerator
     {
-        Task<string> GenerateHtml(int productId, string category);
+        Task<string> GenerateHtml(int productId, string category, int? templateId);
     }
 }

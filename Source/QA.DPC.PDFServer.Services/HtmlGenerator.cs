@@ -26,9 +26,18 @@ namespace QA.DPC.PDFServer.Services
         }
 
 
-        public async Task<string> GenerateHtml(int productId, string category)
+        public async Task<string> GenerateHtml(int productId, string category, int? templateId)
         {
-            var pdfTemplate = await _pdfTemplateSelector.GetPdfTemplate(productId, category);
+            PdfTemplate pdfTemplate;
+            if (templateId.HasValue)
+            {
+                pdfTemplate = await _client.GetProduct<PdfTemplate>(templateId.Value);
+            }
+            else
+            {
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplate(productId, category);
+            }
+            
             if(pdfTemplate == null)
                 throw new TemplateNotFoundException();
             

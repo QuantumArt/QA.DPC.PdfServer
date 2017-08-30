@@ -33,18 +33,18 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         // GET api/pdf/5?category=print
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id, string category, bool asHtml, bool attachment )
+        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment )
         {
             try
             {
-                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category);
+                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId);
                 if (asHtml)
                 {
                     if (attachment)
                     {
                         var htmlBytes = Encoding.UTF8.GetBytes(generatedHtml);
                         Response.Headers.Add("Content-Type", "text/html");
-                        Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.html; size={htmlBytes.Length.ToString()}");
+                        //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.html; size={htmlBytes.Length.ToString()}");
                         return new FileContentResult(htmlBytes, "text/html");
                     }
                     return new JsonResult(new {success = true, generatedHtml = generatedHtml});
@@ -53,10 +53,8 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 {
                     var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml);
                      Response.Headers.Add("Content-Type", "application/pdf");
-                    Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
+                    //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
                     return new  FileContentResult(pdf, "application/pdf");
-                    
-
                 }
                 var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfStaticFilesSettings.RootOutputDirectory);
                 return new JsonResult(new
