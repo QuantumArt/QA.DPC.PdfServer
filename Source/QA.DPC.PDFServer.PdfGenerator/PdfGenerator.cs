@@ -13,7 +13,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 EnsureOutputDirExists(outputDir);
                 var guid = Guid.NewGuid();
                 var fileName = $"{guid}.pdf";
-                var pdfGenerator = new HtmlToPdfConverter();
+                var pdfGenerator = GetConverter();
                 //byte[] outPdfBuffer = null;
                 //outPdfBuffer = pdfGenerator.ConvertHtml(html, string.Empty);
                 pdfGenerator.ConvertHtmlToFile(html, string.Empty, Path.Combine(outputDir, fileName));
@@ -29,7 +29,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
         {
             try
             {
-                var pdfGenerator = new HtmlToPdfConverter();
+                var pdfGenerator = GetConverter();
                 byte[] outPdfBuffer = null;
                 outPdfBuffer = pdfGenerator.ConvertHtml(html, string.Empty);
                 return outPdfBuffer;
@@ -38,6 +38,12 @@ namespace QA.DPC.PDFServer.PdfGenerator
             {
                 throw new PdfGenerationException(e);
             }
+        }
+
+
+        private static HtmlToPdfConverter GetConverter()
+        {
+            return new HtmlToPdfConverter { LicenseKey = "T8HSwNXQwNHXwNXO0MDT0c7R0s7Z2dnZ" };
         }
 
         private static void EnsureOutputDirExists(string outputDir)

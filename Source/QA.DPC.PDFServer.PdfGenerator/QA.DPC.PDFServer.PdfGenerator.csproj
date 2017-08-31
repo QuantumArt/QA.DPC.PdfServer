@@ -31,7 +31,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="evohtmltopdf, Version=7.4.0.0, Culture=neutral, PublicKeyToken=e1fcbb86597de299, processorArchitecture=MSIL">
-      <HintPath>..\packages\evopdf.7.4\lib\net40\evohtmltopdf.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\bin\EvoHtmlToPdf\evohtmltopdf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,11 +46,6 @@
   <ItemGroup>
     <Compile Include="PdfGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
