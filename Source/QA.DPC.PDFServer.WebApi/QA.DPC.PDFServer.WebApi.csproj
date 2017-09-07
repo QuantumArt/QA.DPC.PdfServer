@@ -43,7 +43,9 @@
 
   
     <ItemGroup>
-      <Content Include="..\..\bin\EvoHtmlToPdf\evointernal.dat" CopyToPublishDirectory="true" />
+      <Content Include="..\..\bin\EvoHtmlToPdf\evointernal.dat" CopyToPublishDirectory="true">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
   
 
