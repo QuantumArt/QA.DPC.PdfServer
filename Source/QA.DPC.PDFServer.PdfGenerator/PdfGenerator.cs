@@ -24,6 +24,10 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 }
                 return fileName;
             }
+            catch (PdfGenerationException e)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 throw new PdfGenerationException("Error while generating pdf", e);
