@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NLog;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using QA.DPC.PDFServer.Services.Settings;
 using QA.DPC.PDFServer.Services;
 
@@ -24,7 +27,7 @@ namespace QA.DPC.PDFServer.WebApi
             
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -41,14 +44,19 @@ namespace QA.DPC.PDFServer.WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            loggerFactory.AddNLog();
+            app.AddNLogWeb();
+            env.ConfigureNLog("nlog.config");
             app.UseMvc();
+            
             //app.UseStaticFiles();
             var staticFileSettings = Configuration.GetSection("PdfStaticFiles").Get<PdfStaticFilesSettings>();
             if (staticFileSettings.ServeStatic)
