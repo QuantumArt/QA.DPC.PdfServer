@@ -41,4 +41,10 @@
     </Content>
   </ItemGroup>
 
+  
+    <ItemGroup>
+      <Content Include="..\..\bin\EvoHtmlToPdf\evointernal.dat" CopyToPublishDirectory="true" />
+    </ItemGroup>
+  
+
 </Project>
