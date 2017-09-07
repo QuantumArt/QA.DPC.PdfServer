@@ -6,6 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="cert\mycert.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="cert\mycert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Output\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
@@ -22,12 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QA.DPC.PDFServer.Services\QA.DPC.PDFServer.Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="cert\mycert.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
