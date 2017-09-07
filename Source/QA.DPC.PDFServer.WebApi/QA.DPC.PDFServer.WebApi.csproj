@@ -24,4 +24,10 @@
     <ProjectReference Include="..\QA.DPC.PDFServer.Services\QA.DPC.PDFServer.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="cert\mycert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

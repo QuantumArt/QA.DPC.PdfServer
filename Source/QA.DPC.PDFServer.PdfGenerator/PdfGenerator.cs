@@ -4,7 +4,7 @@ using EvoPdf;
 
 namespace QA.DPC.PDFServer.PdfGenerator
 {
-    public class PdfGenerator 
+    public static class PdfGenerator
     {
         public static string GeneratePdf(string html, string outputDir)
         {
@@ -13,15 +13,20 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 EnsureOutputDirExists(outputDir);
                 var guid = Guid.NewGuid();
                 var fileName = $"{guid}.pdf";
-                var pdfGenerator = GetConverter();
-                //byte[] outPdfBuffer = null;
-                //outPdfBuffer = pdfGenerator.ConvertHtml(html, string.Empty);
-                pdfGenerator.ConvertHtmlToFile(html, string.Empty, Path.Combine(outputDir, fileName));
+
+                var pdfBytes = GeneratePdf(html);
+                using (var stream = new FileStream(Path.Combine(outputDir, fileName), FileMode.Create))
+                {
+                    using (var writer = new BinaryWriter(stream))
+                    {
+                        writer.Write(pdfBytes);
+                    }
+                }
                 return fileName;
             }
             catch (Exception e)
             {
-                throw new PdfGenerationException(e);
+                throw new PdfGenerationException("Error while generating pdf", e);
             }
         }
 
@@ -30,13 +35,34 @@ namespace QA.DPC.PDFServer.PdfGenerator
             try
             {
                 var pdfGenerator = GetConverter();
-                byte[] outPdfBuffer = null;
-                outPdfBuffer = pdfGenerator.ConvertHtml(html, string.Empty);
-                return outPdfBuffer;
+                var pdfDocument = pdfGenerator.ConvertHtmlToPdfDocumentObject(html, string.Empty);
+                ApplyDigitalSignature(pdfGenerator);
+                var pdfBytes = pdfDocument.Save();
+                return pdfBytes;
             }
             catch (Exception e)
             {
-                throw new PdfGenerationException(e);
+                throw new PdfGenerationException("Error while generating pdf", e);
+            }
+        }
+
+        private static void ApplyDigitalSignature(HtmlToPdfConverter pdfGenerator)
+        {
+            var digitalSignatureMapping = pdfGenerator.HtmlElementsMappingOptions.HtmlElementsMappingResult.GetElementByMappingId("digital_signature_element");
+            if (digitalSignatureMapping != null)
+            {
+                var digitalSignaturePage = digitalSignatureMapping.PdfRectangles[0].PdfPage;
+                var digitalSignatureRectangle = digitalSignatureMapping.PdfRectangles[0].Rectangle;
+                const string certificateFilePath = "Cert\\mycert.pfx";
+                var certificates = DigitalCertificatesStore.GetCertificates(certificateFilePath, "qwerty");
+                var signature =
+                    new DigitalSignatureElement(digitalSignatureRectangle, certificates[0])
+                    {
+                        Reason = "Protect the document from unwanted changes",
+                        ContactInfo = "The contact email is support@quantumart.ru",
+                        Location = "Development server"
+                    };
+                digitalSignaturePage.AddElement(signature);
             }
         }
 
@@ -50,14 +76,6 @@ namespace QA.DPC.PDFServer.PdfGenerator
         {
             if (!Directory.Exists(outputDir))
                 Directory.CreateDirectory(outputDir);
-        }
-    }
-
-    public class PdfGenerationException : Exception
-    {
-        public PdfGenerationException(Exception exception)
-        {
-            throw new NotImplementedException();
         }
     }
 }
