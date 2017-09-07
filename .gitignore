@@ -254,3 +254,4 @@ paket-files/
 
 
 !Bin/*
+!mycert.pfx
