@@ -17,16 +17,18 @@ namespace QA.DPC.PDFServer.Services
         private readonly NodeServerSettings _settings;
         private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly IDpcApiClient _client;
+        private readonly IRegionTagsReplacer _regionTagsReplacer;
 
-        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client)
+        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IRegionTagsReplacer regionTagsReplacer)
         {
             _settings = settings.Value;
             _pdfTemplateSelector = pdfTemplateSelector;
             _client = client;
+            _regionTagsReplacer = regionTagsReplacer;
         }
 
 
-        public async Task<string> GenerateHtml(int productId, string category, int? templateId)
+        public async Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId)
         {
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
@@ -69,7 +71,11 @@ namespace QA.DPC.PDFServer.Services
             };
             var response = await MakeGenerateRequest(request);
             if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
-                return await GetHtml(response.RelativePath);
+            {
+                var generateHtml = await GetHtml(response.RelativePath);
+                var replacedHtml = await _regionTagsReplacer.ReplaceTags(generateHtml, productId, regionId);
+                return replacedHtml;
+            }
 
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
         }

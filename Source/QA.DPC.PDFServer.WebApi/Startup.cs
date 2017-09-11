@@ -40,6 +40,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IPdfTemplateSelector, PdfTemplateSelector>();
             services.AddTransient<IHtmlGenerator, HtmlGenerator>();
+            services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
             services.AddMvc();
         }
 

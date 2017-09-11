@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.Settings;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Exceptions;
 
 namespace QA.DPC.PDFServer.Services
@@ -52,6 +53,13 @@ namespace QA.DPC.PDFServer.Services
         {
             var productJson = await GetProductJson(id, allFields, fields);
             return JsonConvert.DeserializeObject<T>(productJson);
+        }
+
+        public async Task<RegionTags[]> GetRegionTags(int productId)
+        {
+            var url = $"{_settings.BaseUrl}/products/RegionTags?ProductId={productId}";
+            var json = await MakeRequest(url);
+            return JsonConvert.DeserializeObject<RegionTags[]>(json);
         }
 
         public async Task<string> GetProductsJson(string productType, int[] ids, string[] fields = null)

@@ -37,11 +37,11 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         // GET api/pdf/5?category=print
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment )
+        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId )
         {
             try
             {
-                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId);
+                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId, regionId);
                 if (asHtml)
                 {
                     if (attachment)

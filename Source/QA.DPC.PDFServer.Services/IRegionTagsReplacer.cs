@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace QA.DPC.PDFServer.Services
 {
-    public interface IHtmlGenerator
+    public interface IRegionTagsReplacer
     {
-        Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId);
+        Task<string> ReplaceTags(string input, int productId, int? regionId);
     }
 }
