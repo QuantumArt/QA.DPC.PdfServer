@@ -22,11 +22,11 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<PdfTemplate> GetPdfTemplate(int productId, string category)
+        public async Task<PdfTemplate> GetPdfTemplate(int productId, string category, SiteMode siteMode)
         {
             var fields = new List<string> {"Id"};
             fields.AddRange(_settings.PdfTemplateFields);
-            var productJson = await _dpcApiClient.GetProductJson(productId, false, fields.ToArray());
+            var productJson = await _dpcApiClient.GetProductJson(productId, false, siteMode, fields.ToArray());
             if(productJson == null)
                 throw new GetProductJsonException();
             var jObj = JObject.Parse(productJson);
@@ -46,7 +46,7 @@ namespace QA.DPC.PDFServer.Services
                 throw new TemplateNotFoundException();
 
             var distinctTemplateIds = templateSearchArray.SelectMany(x => x).Distinct().ToArray();
-            var templates = await _dpcApiClient.GetProducts<PdfTemplate>("pdf", distinctTemplateIds, new[] {"*"});
+            var templates = await _dpcApiClient.GetProducts<PdfTemplate>("pdf", distinctTemplateIds, siteMode, new[] {"*"});
             var dpcPdfTemplates = templates as IList<PdfTemplate> ?? templates.ToList();
             for (var i = 0; i < templateSearchArray.Count; i++)
             {

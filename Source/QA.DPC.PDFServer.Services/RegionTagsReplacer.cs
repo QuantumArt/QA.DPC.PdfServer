@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 
 namespace QA.DPC.PDFServer.Services
 {
@@ -15,12 +16,12 @@ namespace QA.DPC.PDFServer.Services
             _dpcApiClient = dpcApiClient;
         }
 
-        public async Task<string> ReplaceTags(string input, int productId, int? regionId)
+        public async Task<string> ReplaceTags(string input, int productId, SiteMode siteMode,  int? regionId)
         {
             if (!regionId.HasValue)
                 return input;
 
-            var regionTags = await _dpcApiClient.GetRegionTags(productId);
+            var regionTags = await _dpcApiClient.GetRegionTags(productId, siteMode);
             if (regionTags == null || regionTags.Length == 0)
                 return input;
 

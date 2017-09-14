@@ -8,16 +8,16 @@ namespace QA.DPC.PDFServer.Services
 {
     public interface IDpcApiClient
     {
-        Task<string> GetProductJson(int id);
-        Task<string> GetProductJson(int id, bool allFields, string[] fields = null);
-        Task<T> GetProduct<T>(int id);
-        Task<T> GetProduct<T>(int id, bool allFields, string[] fields = null);
+        Task<string> GetProductJson(int id, SiteMode siteMode);
+        Task<string> GetProductJson(int id, bool allFields, SiteMode siteMode, string[] fields = null);
+        Task<T> GetProduct<T>(int id, SiteMode allFields);
+        Task<T> GetProduct<T>(int id, bool allFields, SiteMode siteMode, string[] fields = null);
 
-        Task<RegionTags[]> GetRegionTags(int productId);
+        Task<RegionTags[]> GetRegionTags(int productId, SiteMode siteMode);
        
-        Task<string> GetProductsJson(string productType, int[] ids, string[] fields = null);
-        Task<IEnumerable<T>> GetProducts<T>(string productType, int[] ids, string[] fields = null);
-        string GetProductJsonDownloadUrl(int id, bool allFields, string[] fields = null);
+        Task<string> GetProductsJson(string productType, int[] ids, SiteMode siteMode, string[] fields = null);
+        Task<IEnumerable<T>> GetProducts<T>(string productType, int[] ids, SiteMode siteMode, string[] fields = null);
+        string GetProductJsonDownloadUrl(int id, bool allFields, SiteMode siteMode, string[] fields = null);
 
     }
 }

@@ -26,14 +26,14 @@ namespace QA.DPC.PDFServer.Services
         }
 
 
-        public async Task<string> GetProductJson(int id)
+        public async Task<string> GetProductJson(int id, SiteMode siteMode)
         {
-            return await GetProductJson(id, false);
+            return await GetProductJson(id, false, siteMode);
         }
 
-        public async Task<string> GetProductJson(int id, bool allFields, string[] fields = null)
+        public async Task<string> GetProductJson(int id, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var url = GetProductJsonDownloadUrl(id, allFields, fields);
+            var url = GetProductJsonDownloadUrl(id, allFields, siteMode, fields);
             try
             {
                 return await MakeRequest(url);
@@ -44,28 +44,33 @@ namespace QA.DPC.PDFServer.Services
             }
         }
 
-        public async Task<T> GetProduct<T>(int id)
+        public async Task<T> GetProduct<T>(int id, SiteMode siteMode)
         {
-            return await GetProduct<T>(id, false);
+            return await GetProduct<T>(id, false, siteMode);
         }
 
-        public async Task<T> GetProduct<T>(int id, bool allFields, string[] fields = null)
+        public async Task<T> GetProduct<T>(int id, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var productJson = await GetProductJson(id, allFields, fields);
+            var productJson = await GetProductJson(id, allFields, siteMode, fields);
             return JsonConvert.DeserializeObject<T>(productJson);
         }
 
-        public async Task<RegionTags[]> GetRegionTags(int productId)
+        
+
+        
+        
+
+        public async Task<RegionTags[]> GetRegionTags(int productId, SiteMode siteMode)
         {
-            var url = $"{_settings.BaseUrl}/products/RegionTags?ProductId={productId}";
+            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/RegionTags?ProductId={productId}";
             var json = await MakeRequest(url);
             return JsonConvert.DeserializeObject<RegionTags[]>(json);
         }
 
-        public async Task<string> GetProductsJson(string productType, int[] ids, string[] fields = null)
+        public async Task<string> GetProductsJson(string productType, int[] ids, SiteMode siteMode, string[] fields = null)
         {
             //вариант для получения одним запросом(когда починят).
-            var url = $"{_settings.BaseUrl}/products/{productType}?Id={string.Join("{or}", ids)}";
+            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{productType}?Id={string.Join("{or}", ids)}";
 
             if (fields != null && fields.Any())
             {
@@ -75,15 +80,15 @@ namespace QA.DPC.PDFServer.Services
             return await MakeRequest(url);
         }
 
-        public async Task<IEnumerable<T>> GetProducts<T>(string productType, int[] ids, string[] fields = null)
+        public async Task<IEnumerable<T>> GetProducts<T>(string productType, int[] ids, SiteMode siteMode, string[] fields = null)
         {
-            var productsJsons = await GetProductsJson(productType, ids, fields);
+            var productsJsons = await GetProductsJson(productType, ids, siteMode, fields);
             return JsonConvert.DeserializeObject<IEnumerable<T>>(productsJsons);
         }
 
-        public string GetProductJsonDownloadUrl(int id, bool allFields, string[] fields = null)
+        public string GetProductJsonDownloadUrl(int id, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var url = $"{_settings.BaseUrl}/products/{id}";
+            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{id}";
             if (allFields)
                 fields = new[] { "*" };
 

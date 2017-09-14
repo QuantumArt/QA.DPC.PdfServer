@@ -37,11 +37,14 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         // GET api/pdf/5?category=print
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId )
+        [HttpGet("{mode}/{id}")]
+        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId, string mode = "live" )
         {
             try
             {
-                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId, regionId);
+                var siteMode = ParseSiteMode(mode);
+
+                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId, regionId, siteMode);
                 if (asHtml)
                 {
                     if (attachment)
@@ -92,6 +95,23 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 _logger.LogError(LoggingEvents.General, ex, "General error");
                 return new JsonResult(new {success = false, error = ex.Message});
             }
+        }
+
+        private static SiteMode ParseSiteMode(string mode)
+        {
+            var siteMode = SiteMode.Unknown;
+
+            if (mode.Equals("live", StringComparison.InvariantCultureIgnoreCase))
+            {
+                siteMode = SiteMode.Live;
+            }
+            if (mode.Equals("stage", StringComparison.InvariantCultureIgnoreCase))
+            {
+                siteMode = SiteMode.Stage;
+            }
+            if (siteMode == SiteMode.Unknown)
+                throw new Exception("Unknown site mode; must be empty or \"stage\" or \"live\"");
+            return siteMode;
         }
     }
 }
