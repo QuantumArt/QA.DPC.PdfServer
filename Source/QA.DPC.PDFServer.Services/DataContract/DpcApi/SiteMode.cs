@@ -10,7 +10,6 @@ namespace QA.DPC.PDFServer.Services.DataContract.DpcApi
     {
         Unknown = 0,
         Live = 1,
-        Stage = 2,
-        
+        Stage = 2
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Exceptions;
+using QA.DPC.PDFServer.Services.Interfaces;
 
 namespace QA.DPC.PDFServer.Services
 {

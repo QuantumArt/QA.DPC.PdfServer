@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 
-namespace QA.DPC.PDFServer.Services
+namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IDpcApiClient
     {
         Task<string> GetProductJson(int id, SiteMode siteMode);
         Task<string> GetProductJson(int id, bool allFields, SiteMode siteMode, string[] fields = null);
-        Task<T> GetProduct<T>(int id, SiteMode allFields);
+        Task<T> GetProduct<T>(int id, SiteMode siteMode);
         Task<T> GetProduct<T>(int id, bool allFields, SiteMode siteMode, string[] fields = null);
 
         Task<RegionTags[]> GetRegionTags(int productId, SiteMode siteMode);

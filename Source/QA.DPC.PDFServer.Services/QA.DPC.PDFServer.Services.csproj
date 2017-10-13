@@ -15,4 +15,8 @@
     <ProjectReference Include="..\QA.DPC.PDFServer.PdfGenerator\QA.DPC.PDFServer.PdfGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
 </Project>

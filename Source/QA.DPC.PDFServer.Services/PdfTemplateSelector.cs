@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using QA.DPC.PDFServer.Services.DataContract;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Exceptions;
+using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services

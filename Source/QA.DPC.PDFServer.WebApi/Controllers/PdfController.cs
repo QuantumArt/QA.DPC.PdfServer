@@ -1,19 +1,13 @@
 ﻿using System;
-using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using QA.DPC.PDFServer.PdfGenerator;
-using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
-using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
 using QA.DPC.PDFServer.Services.Exceptions;
+using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
 using QA.DPC.PDFServer.WebApi.Logging;
 
@@ -25,6 +19,9 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     public class PdfController : Controller
     {
         private readonly IHtmlGenerator _htmlGenerator;
+
+
+        //private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly ILogger<PdfController> _logger;
         private readonly PdfStaticFilesSettings _pdfStaticFilesSettings;
 
@@ -33,6 +30,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             _htmlGenerator = htmlGenerator;
             _logger = logger;
             _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
+
         }
 
         // GET api/pdf/5?category=print
@@ -96,6 +94,8 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 return new JsonResult(new {success = false, error = ex.Message});
             }
         }
+
+     
 
         private static SiteMode ParseSiteMode(string mode)
         {

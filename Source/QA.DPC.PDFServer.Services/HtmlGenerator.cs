@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
 using QA.DPC.PDFServer.Services.Exceptions;
+using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services
@@ -27,6 +28,8 @@ namespace QA.DPC.PDFServer.Services
             _regionTagsReplacer = regionTagsReplacer;
         }
 
+
+        
 
         public async Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode)
         {

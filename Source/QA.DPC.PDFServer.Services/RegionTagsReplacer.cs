@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
+using QA.DPC.PDFServer.Services.Interfaces;
 
 namespace QA.DPC.PDFServer.Services
 {

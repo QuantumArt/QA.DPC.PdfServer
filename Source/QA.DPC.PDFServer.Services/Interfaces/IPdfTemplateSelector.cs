@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using QA.DPC.PDFServer.Services.DataContract;
+﻿using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 
-namespace QA.DPC.PDFServer.Services
+namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IPdfTemplateSelector
     {
