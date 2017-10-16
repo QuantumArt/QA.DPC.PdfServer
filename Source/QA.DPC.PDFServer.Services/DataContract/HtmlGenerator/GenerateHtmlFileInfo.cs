@@ -10,7 +10,8 @@ namespace QA.DPC.PDFServer.Services.DataContract.HtmlGenerator
         public long Timestamp { get; set; }
         [JsonProperty(PropertyName = "downloadUrl")]
         public string DownloadUrl { get; set; }
-
+        [JsonProperty(PropertyName = "forceDownload")]
+        public bool ForceDownload { get; set; }
         [JsonProperty(PropertyName = "siteMode")]
         public string SiteMode { get; set; }
     }

@@ -26,12 +26,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         [HttpGet("{id}")]
         [HttpGet("{mode}/{id}")]
-        public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, string mode = "live")
+        public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, bool? forceDownload = false, string mode = "live")
         {
             try
             {
                 var siteMode = ParseSiteMode(mode);
-                var mappedProduct = await _productJsonMapper.MapProductJson(id, category, mapperId, templateId, siteMode);
+                var mappedProduct = await _productJsonMapper.MapProductJson(id, category, mapperId, templateId, forceDownload.Value, siteMode);
                 return new JsonResult(new {success = true, jsonString = mappedProduct});
             }
             catch (GetProductJsonException ex)

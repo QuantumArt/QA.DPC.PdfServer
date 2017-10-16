@@ -5,6 +5,6 @@ namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IProductJsonMapper
     {
-        Task<string> MapProductJson(int productId, string category, int? mapperId, int? templateId, SiteMode siteMode);
+        Task<string> MapProductJson(int productId, string category, int? mapperId, int? templateId, bool forceDownload, SiteMode siteMode);
     }
 }

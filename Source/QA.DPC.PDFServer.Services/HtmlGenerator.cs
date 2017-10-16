@@ -31,7 +31,7 @@ namespace QA.DPC.PDFServer.Services
 
         
 
-        public async Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode)
+        public async Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload)
         {
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
@@ -57,6 +57,7 @@ namespace QA.DPC.PDFServer.Services
                     Id = productId,
                     Timestamp = ConvertToTimestamp(productBase.UpdateDate),
                     DownloadUrl = productDownloadUrl,
+                    ForceDownload = forceDownload,
                     SiteMode = siteMode.ToString()
                 },
                 MapperData = new GenerateHtmlFileInfo
@@ -64,6 +65,7 @@ namespace QA.DPC.PDFServer.Services
                     Id = pdfTemplate.PdfScriptMapper.Id,
                     Timestamp = ConvertToTimestamp(pdfTemplate.PdfScriptMapper.Timestamp),
                     DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
+                    ForceDownload = forceDownload,
                     SiteMode = siteMode.ToString()
                 },
                 TemplateData = new GenerateHtmlFileInfo
@@ -71,6 +73,7 @@ namespace QA.DPC.PDFServer.Services
                     Id = pdfTemplate.Id,
                     Timestamp = ConvertToTimestamp(pdfTemplate.UpdateDate),
                     DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfTemplateFile.AbsoluteUrl}",
+                    ForceDownload = forceDownload,
                     SiteMode = siteMode.ToString()
                 },
                 TemplateEngine = pdfTemplate.PdfTemplateEngine

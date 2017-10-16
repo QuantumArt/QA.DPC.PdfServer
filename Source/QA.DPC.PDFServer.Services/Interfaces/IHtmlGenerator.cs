@@ -5,6 +5,6 @@ namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IHtmlGenerator
     {
-        Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode);
+        Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload);
     }
 }

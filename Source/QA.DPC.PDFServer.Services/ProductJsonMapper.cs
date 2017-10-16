@@ -31,7 +31,7 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<string> MapProductJson(int productId, string category, int? mapperId, int? templateId, SiteMode siteMode)
+        public async Task<string> MapProductJson(int productId, string category, int? mapperId, int? templateId, bool forceDownload, SiteMode siteMode)
         {
             
             if (!mapperId.HasValue)
@@ -62,6 +62,7 @@ namespace QA.DPC.PDFServer.Services
                 {
                     Id = productId,
                     Timestamp = ConvertToTimestamp(productBase.UpdateDate),
+                    ForceDownload = forceDownload,
                     DownloadUrl = productDownloadUrl,
                     SiteMode = siteMode.ToString()
                 },
@@ -69,7 +70,8 @@ namespace QA.DPC.PDFServer.Services
                 MapperData = new GenerateHtmlFileInfo
                 {
                     Id = mapperId.Value,
-                    Timestamp = ConvertToTimestamp(DateTime.UtcNow),
+                    Timestamp = ConvertToTimestamp(mapper.Timestamp),
+                    ForceDownload = forceDownload,
                     DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{mapper.PdfScriptMapperFile.AbsoluteUrl}",
                     SiteMode = "db"
                 },
