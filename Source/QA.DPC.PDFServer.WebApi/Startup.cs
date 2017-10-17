@@ -47,6 +47,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IHtmlGenerator, HtmlGenerator>();
             services.AddTransient<IProductJsonMapper, ProductJsonMapper>();
             services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
+
             services.AddMvc();
         }
 
@@ -62,6 +63,7 @@ namespace QA.DPC.PDFServer.WebApi
             loggerFactory.AddNLog();
             app.AddNLogWeb();
             env.ConfigureNLog("nlog.config");
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod());
             app.UseMvc();
             
             //app.UseStaticFiles();
