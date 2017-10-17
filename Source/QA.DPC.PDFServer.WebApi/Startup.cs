@@ -63,7 +63,11 @@ namespace QA.DPC.PDFServer.WebApi
             loggerFactory.AddNLog();
             app.AddNLogWeb();
             env.ConfigureNLog("nlog.config");
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod());
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
             app.UseMvc();
             
             //app.UseStaticFiles();
