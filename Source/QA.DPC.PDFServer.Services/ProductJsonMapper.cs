@@ -43,7 +43,7 @@ namespace QA.DPC.PDFServer.Services
                 }
                 else
                 {
-                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplate(productId, category, siteMode);
+                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(productId, category, siteMode);
                 }
                 mapperId = pdfTemplate.PdfScriptMapper.Id;
             }

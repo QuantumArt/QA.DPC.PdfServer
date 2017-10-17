@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -26,6 +27,21 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
+
+        public async Task<string> GetProductJson(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
+        {
+            var url = GetProductJsonDownloadUrl(slug, parameters, allFields, siteMode, fields);
+            try
+            {
+                return await MakeRequest(url);
+            }
+            catch (Exception ex)
+            {
+                throw new GetProductJsonException($"Get product json with slug = {slug}", ex);
+            }
+        }
+
+        
 
         public async Task<string> GetProductJson(int id, SiteMode siteMode)
         {
@@ -56,10 +72,12 @@ namespace QA.DPC.PDFServer.Services
             return JsonConvert.DeserializeObject<T>(productJson);
         }
 
-        
+        public async Task<T> GetProduct<T>(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
+        {
+            var productJson = await GetProductJson(slug, parameters, allFields, siteMode, fields);
+            return JsonConvert.DeserializeObject<T>(productJson);
+        }
 
-        
-        
 
         public async Task<RegionTags[]> GetRegionTags(int productId, SiteMode siteMode)
         {
@@ -67,6 +85,7 @@ namespace QA.DPC.PDFServer.Services
             var json = await MakeRequest(url);
             return JsonConvert.DeserializeObject<RegionTags[]>(json);
         }
+
 
         public async Task<string> GetProductsJson(string productType, int[] ids, SiteMode siteMode, string[] fields = null)
         {
@@ -97,6 +116,27 @@ namespace QA.DPC.PDFServer.Services
             {
                 url += $"?fields={string.Join(",", fields)}";
             }
+            return url;
+        }
+
+        private string GetProductJsonDownloadUrl(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields)
+        {
+            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{slug}";
+            if (parameters.HasKeys())
+            {
+                var queryParams = string.Join("&", parameters.AllKeys.Select(key => $"{key}={parameters[key]}"));
+                url += $"?{queryParams}";
+            }
+            
+            if (allFields)
+                fields = new[] { "*" };
+
+            if (fields != null && fields.Any())
+            {
+                url += parameters.HasKeys() ? "&" : "?";
+                url += $"fields={string.Join(",", fields)}";
+            }
+
             return url;
         }
 

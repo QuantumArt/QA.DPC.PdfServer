@@ -18,13 +18,15 @@ namespace QA.DPC.PDFServer.Services
         private readonly NodeServerSettings _settings;
         private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly IDpcApiClient _client;
+        private readonly IImpactApiClient _impactApiClient;
         private readonly IRegionTagsReplacer _regionTagsReplacer;
 
-        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IRegionTagsReplacer regionTagsReplacer)
+        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer)
         {
             _settings = settings.Value;
             _pdfTemplateSelector = pdfTemplateSelector;
             _client = client;
+            _impactApiClient = impactApiClient;
             _regionTagsReplacer = regionTagsReplacer;
         }
 
@@ -40,7 +42,7 @@ namespace QA.DPC.PDFServer.Services
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplate(productId, category, siteMode);
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(productId, category, siteMode);
             }
             
             if(pdfTemplate == null)
@@ -87,6 +89,62 @@ namespace QA.DPC.PDFServer.Services
             }
 
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
+        }
+
+        public async Task<string> GenerateRoamingHtml(string category, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
+        {
+            PdfTemplate pdfTemplate;
+            if (templateId.HasValue)
+            {
+                pdfTemplate = await _client.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+            }
+            else
+            {
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(countryCode, category, isB2B, siteMode);
+            }
+
+            if (pdfTemplate == null)
+                throw new TemplateNotFoundException();
+
+            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(countryCode, isB2B, siteMode);
+
+
+            var request = new GenerateHtmlRequest
+            {
+                TariffData = new GenerateHtmlFileInfo
+                {
+                    Id = $"{countryCode}_{isB2B}".GetHashCode(), // не очень правильно, но в данном случае - сойдет
+                    Timestamp = ConvertToTimestamp(DateTime.UtcNow),
+                    DownloadUrl = productDownloadUrl,
+                    ForceDownload = forceDownload,
+                    SiteMode = siteMode.ToString()
+                },
+                MapperData = new GenerateHtmlFileInfo
+                {
+                    Id = pdfTemplate.PdfScriptMapper.Id,
+                    Timestamp = ConvertToTimestamp(pdfTemplate.PdfScriptMapper.Timestamp),
+                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
+                    ForceDownload = forceDownload,
+                    SiteMode = siteMode.ToString()
+                },
+                TemplateData = new GenerateHtmlFileInfo
+                {
+                    Id = pdfTemplate.Id,
+                    Timestamp = ConvertToTimestamp(pdfTemplate.UpdateDate),
+                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfTemplateFile.AbsoluteUrl}",
+                    ForceDownload = forceDownload,
+                    SiteMode = siteMode.ToString()
+                },
+                TemplateEngine = pdfTemplate.PdfTemplateEngine
+            };
+            var response = await MakeGenerateRequest(request);
+            if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
+            {
+                return await GetHtml(response.RelativePath);
+            }
+
+            throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
+
         }
 
         private async Task<string> GetHtml(string generatedHtmlRelativeUrl)

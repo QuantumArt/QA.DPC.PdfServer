@@ -11,8 +11,7 @@ using QA.DPC.PDFServer.WebApi.Logging;
 
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
-    [Route("api/[controller]")]
-    public class ProductJsonMapperController
+    public class ProductJsonMapperController : BaseController
     {
         private readonly IProductJsonMapper _productJsonMapper;
         private readonly ILogger<ProductJsonMapperController> _logger;
@@ -26,12 +25,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         [HttpGet("{id}")]
         [HttpGet("{mode}/{id}")]
-        public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, bool? forceDownload = false, string mode = "live")
+        public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, bool forceDownload, string mode = "live")
         {
             try
             {
                 var siteMode = ParseSiteMode(mode);
-                var mappedProduct = await _productJsonMapper.MapProductJson(id, category, mapperId, templateId, forceDownload.Value, siteMode);
+                var mappedProduct = await _productJsonMapper.MapProductJson(id, category, mapperId, templateId, forceDownload, siteMode);
                 return new JsonResult(new {success = true, jsonString = mappedProduct});
             }
             catch (GetProductJsonException ex)
@@ -56,21 +55,5 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             }
         }
 
-        private static SiteMode ParseSiteMode(string mode)
-        {
-            var siteMode = SiteMode.Unknown;
-
-            if (mode.Equals("live", StringComparison.InvariantCultureIgnoreCase))
-            {
-                siteMode = SiteMode.Live;
-            }
-            if (mode.Equals("stage", StringComparison.InvariantCultureIgnoreCase))
-            {
-                siteMode = SiteMode.Stage;
-            }
-            if (siteMode == SiteMode.Unknown)
-                throw new Exception("Unknown site mode; must be empty or \"stage\" or \"live\"");
-            return siteMode;
-        }
     }
 }

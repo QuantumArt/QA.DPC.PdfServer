@@ -5,6 +5,7 @@ namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IPdfTemplateSelector
     {
-        Task<PdfTemplate> GetPdfTemplate(int productId, string category, SiteMode siteMode);
+        Task<PdfTemplate> GetPdfTemplateForProduct(int productId, string category, SiteMode siteMode);
+        Task<PdfTemplate> GetPdfTemplateForRoaming(string countryCode, string category, bool isB2bB, SiteMode siteMode);
     }
 }

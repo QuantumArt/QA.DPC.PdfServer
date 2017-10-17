@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/productJsonMapper/1713794?category=test",
+      "launchUrl": "api/Roaming/AU?category=test&asHtml=true&isB2B=true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
