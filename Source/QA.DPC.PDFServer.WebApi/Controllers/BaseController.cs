@@ -8,7 +8,6 @@ using QA.DPC.PDFServer.Services.Settings;
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    [EnableCors("AllowAllOrigins")]
     public class BaseController : Controller
     {
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
