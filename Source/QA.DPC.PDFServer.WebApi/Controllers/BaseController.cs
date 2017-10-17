@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Settings;
@@ -7,6 +8,7 @@ using QA.DPC.PDFServer.Services.Settings;
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("AllowAllOrigins")]
     public class BaseController : Controller
     {
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
