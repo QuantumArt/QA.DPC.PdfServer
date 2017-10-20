@@ -38,7 +38,7 @@ namespace QA.DPC.PDFServer.Services
         {
             var fields = new List<string>{"Id"};
             fields.AddRange(_settings.RoamingPdfTemplateFields);
-            var query = new NameValueCollection{{"Country.Code", countryCode}};
+            var query = new NameValueCollection{{"Alias", countryCode}};
             var productJson = await _dpcApiClient.GetProductJson("RoamingCountry", query, false, siteMode, fields.ToArray());
             return await FindPdfTemplateInJson(category, siteMode, productJson, _settings.RoamingPdfTemplateFields, true);
         }

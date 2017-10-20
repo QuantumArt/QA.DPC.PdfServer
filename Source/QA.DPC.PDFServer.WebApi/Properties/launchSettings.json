@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/Roaming/AU?category=test&asHtml=true&isB2B=true",
+      "launchUrl": "api/Roaming/Aviaroaming?category=test&attachment=true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
