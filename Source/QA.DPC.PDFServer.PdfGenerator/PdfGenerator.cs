@@ -41,6 +41,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 var pdfGenerator = GetConverter();
                 var pdfDocument = pdfGenerator.ConvertHtmlToPdfDocumentObject(html, string.Empty);
                 ApplyDigitalSignature(pdfGenerator);
+                //pdfDocument.Margins = new Margins(100,100,100,100);
                 var pdfBytes = pdfDocument.Save();
                 return pdfBytes;
             }
@@ -73,7 +74,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
 
         private static HtmlToPdfConverter GetConverter()
         {
-            return new HtmlToPdfConverter { LicenseKey = "T8HSwNXQwNHXwNXO0MDT0c7R0s7Z2dnZ" };
+            return new HtmlToPdfConverter { LicenseKey = "T8HSwNXQwNHXwNXO0MDT0c7R0s7Z2dnZ",PdfDocumentOptions = { TopMargin = 40, BottomMargin = 40}};
         }
 
         private static void EnsureOutputDirExists(string outputDir)
