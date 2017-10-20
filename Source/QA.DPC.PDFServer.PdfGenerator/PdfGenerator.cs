@@ -6,7 +6,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
 {
     public static class PdfGenerator
     {
-        public static string GeneratePdf(string html, string outputDir)
+        public static string GeneratePdf(string html, PdfSettings pdfSettings, string outputDir)
         {
             try
             {
@@ -14,7 +14,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 var guid = Guid.NewGuid();
                 var fileName = $"{guid}.pdf";
 
-                var pdfBytes = GeneratePdf(html);
+                var pdfBytes = GeneratePdf(html, pdfSettings);
                 using (var stream = new FileStream(Path.Combine(outputDir, fileName), FileMode.Create))
                 {
                     using (var writer = new BinaryWriter(stream))
@@ -34,14 +34,13 @@ namespace QA.DPC.PDFServer.PdfGenerator
             }
         }
 
-        public static byte[] GeneratePdf(string html)
+        public static byte[] GeneratePdf(string html, PdfSettings pdfSettings)
         {
             try
             {
-                var pdfGenerator = GetConverter();
+                var pdfGenerator = GetConverter(pdfSettings);
                 var pdfDocument = pdfGenerator.ConvertHtmlToPdfDocumentObject(html, string.Empty);
                 ApplyDigitalSignature(pdfGenerator);
-                //pdfDocument.Margins = new Margins(100,100,100,100);
                 var pdfBytes = pdfDocument.Save();
                 return pdfBytes;
             }
@@ -72,9 +71,30 @@ namespace QA.DPC.PDFServer.PdfGenerator
         }
 
 
-        private static HtmlToPdfConverter GetConverter()
+        private static HtmlToPdfConverter GetConverter(PdfSettings pdfSettings)
         {
-            return new HtmlToPdfConverter { LicenseKey = "T8HSwNXQwNHXwNXO0MDT0c7R0s7Z2dnZ",PdfDocumentOptions = { TopMargin = 40, BottomMargin = 40}};
+            var htmlToPdfConverter = new HtmlToPdfConverter {LicenseKey = "T8HSwNXQwNHXwNXO0MDT0c7R0s7Z2dnZ"};
+            htmlToPdfConverter.PdfDocumentOptions.TopMargin = pdfSettings.MarginTop;
+            htmlToPdfConverter.PdfDocumentOptions.BottomMargin = pdfSettings.MarginBottom;
+            htmlToPdfConverter.PdfDocumentOptions.LeftMargin = pdfSettings.MarginLeft;
+            htmlToPdfConverter.PdfDocumentOptions.RightMargin = pdfSettings.MarginRight;
+            htmlToPdfConverter.PdfDocumentOptions.PdfPageSize = MapPdfPageSize(pdfSettings.PageSize);
+            return htmlToPdfConverter;
+        }
+
+        
+
+        private static PdfPageSize MapPdfPageSize(PageSize pdfSettingsPageSize)
+        {
+            switch (pdfSettingsPageSize)
+            {
+                case PageSize.A4:
+                    return PdfPageSize.A4;
+                case PageSize.A5:
+                    return PdfPageSize.A5;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(pdfSettingsPageSize), pdfSettingsPageSize, null);
+            }
         }
 
         private static void EnsureOutputDirExists(string outputDir)

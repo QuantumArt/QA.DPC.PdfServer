@@ -24,11 +24,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         private readonly ILogger<PdfController> _logger;
         //private readonly PdfStaticFilesSettings _pdfStaticFilesSettings;
 
-        public PdfController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, ILogger<PdfController> logger)
+        public PdfController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, ILogger<PdfController> logger)
         {
             _htmlGenerator = htmlGenerator;
             _logger = logger;
             _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
+            _pdfPageSettings = pdfSettings.Value;
 
         }
 

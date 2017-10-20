@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.Settings;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.Interfaces;
@@ -40,6 +41,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.Configure<PdfStaticFilesSettings>(Configuration.GetSection("PdfStaticFiles"));
+            services.Configure<PdfSettings>(Configuration.GetSection("PdfPageSettings"));
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
             services.AddTransient<IImpactApiClient, ImpactApiClient>();

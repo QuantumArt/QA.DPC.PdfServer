@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="PdfGenerationException.cs" />
     <Compile Include="PdfGenerator.cs" />
+    <Compile Include="PdfSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

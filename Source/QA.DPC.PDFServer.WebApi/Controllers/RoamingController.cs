@@ -19,10 +19,11 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         private readonly IHtmlGenerator _htmlGenerator;
         private readonly ILogger<RoamingController> _logger;
 
-        public RoamingController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, ILogger<RoamingController> logger)
+        public RoamingController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, ILogger<RoamingController> logger)
         {
             _htmlGenerator = htmlGenerator;
             _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
+            _pdfPageSettings = pdfSettings.Value;
             _logger = logger;
         }
 

@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Settings;
 
@@ -11,6 +12,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     public class BaseController : Controller
     {
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
+        protected PdfSettings _pdfPageSettings;
 
         protected static SiteMode ParseSiteMode(string mode)
         {
@@ -44,12 +46,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             }
             if (attachment)
             {
-                var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml);
+                var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings);
                 Response.Headers.Add("Content-Type", "application/pdf");
                 //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
                 return new FileContentResult(pdf, "application/pdf");
             }
-            var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfStaticFilesSettings.RootOutputDirectory);
+            var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _pdfStaticFilesSettings.RootOutputDirectory);
             return new JsonResult(new
             {
                 success = true,
