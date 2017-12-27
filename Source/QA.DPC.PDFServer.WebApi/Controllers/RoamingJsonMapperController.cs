@@ -11,26 +11,24 @@ using QA.DPC.PDFServer.WebApi.Logging;
 
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
-    public class ProductJsonMapperController : BaseController
+    public class RoamingJsonMapperController : BaseController
     {
         private readonly IProductJsonMapper _productJsonMapper;
-        private readonly ILogger<ProductJsonMapperController> _logger;
+        private readonly ILogger<RoamingJsonMapperController> _logger;
 
-        public ProductJsonMapperController(IProductJsonMapper productJsonMapper, ILogger<ProductJsonMapperController> logger)
+        public RoamingJsonMapperController(IProductJsonMapper productJsonMapper, ILogger<RoamingJsonMapperController> logger)
         {
             _productJsonMapper = productJsonMapper;
             _logger = logger;
         }
 
-
         [HttpGet]
-        [HttpGet("{countryCode}")]
-        public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, bool forceDownload, string mode = "live")
+        public async Task<ActionResult> Get(int? id, string countryCode, int? mapperId, int? templateId, string category, bool forceDownload, bool isB2b, string mode = "live")
         {
             try
             {
                 var siteMode = ParseSiteMode(mode);
-                var mappedProduct = await _productJsonMapper.MapProductJson(id, category, mapperId, templateId, forceDownload, siteMode);
+                var mappedProduct = await _productJsonMapper.MapRoamingCountryJson(id, countryCode, category, isB2b, mapperId, templateId, forceDownload, siteMode);
                 return new JsonResult(new {success = true, jsonString = mappedProduct});
             }
             catch (GetProductJsonException ex)
@@ -54,8 +52,6 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 return new JsonResult(new { success = false, error = ex.Message });
             }
         }
-
-
 
     }
 }

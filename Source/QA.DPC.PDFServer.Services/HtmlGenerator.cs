@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,8 +92,22 @@ namespace QA.DPC.PDFServer.Services
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
         }
 
-        public async Task<string> GenerateRoamingHtml(string category, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
+        public async Task<string> GenerateRoamingHtml(string category, int? roamingCountryId, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
         {
+            string cCode = null;
+            if (roamingCountryId.HasValue)
+            {
+                var article = await _client.GetProduct<RoamingCountry>(roamingCountryId.Value, siteMode);
+                if (article != null)
+                {
+                    cCode = article.Alias;
+                }
+            }
+            else
+            {
+                cCode = countryCode;
+            }
+
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
             {
@@ -100,20 +115,20 @@ namespace QA.DPC.PDFServer.Services
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(countryCode, category, isB2B, siteMode);
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(cCode, category, isB2B, siteMode);
             }
 
             if (pdfTemplate == null)
                 throw new TemplateNotFoundException();
 
-            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(countryCode, isB2B, siteMode);
+            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(cCode, isB2B, siteMode);
 
 
             var request = new GenerateHtmlRequest
             {
                 TariffData = new GenerateHtmlFileInfo
                 {
-                    Id = $"{countryCode}_{isB2B}".GetHashCode(), // не очень правильно, но в данном случае - сойдет
+                    Id = $"{cCode}_{isB2B}".GetHashCode(), // не очень правильно, но в данном случае - сойдет
                     Timestamp = ConvertToTimestamp(DateTime.UtcNow),
                     DownloadUrl = productDownloadUrl,
                     ForceDownload = forceDownload,

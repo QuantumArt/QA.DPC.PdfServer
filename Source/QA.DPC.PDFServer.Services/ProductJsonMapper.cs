@@ -21,13 +21,15 @@ namespace QA.DPC.PDFServer.Services
         private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly IDpcApiClient _dpcApiClient;
         private readonly IDpcDbApiClient _dpcApiDbApiClient;
+        private readonly IImpactApiClient _impactApiClient;
         private readonly NodeServerSettings _settings;
 
-        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IDpcDbApiClient dpcApiDbApiClient)
+        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IDpcDbApiClient dpcApiDbApiClient, IImpactApiClient impactApiClient)
         {
             _pdfTemplateSelector = pdfTemplateSelector;
             _dpcApiClient = dpcApiClient;
             _dpcApiDbApiClient = dpcApiDbApiClient;
+            _impactApiClient = impactApiClient;
             _settings = settings.Value;
         }
 
@@ -82,6 +84,71 @@ namespace QA.DPC.PDFServer.Services
                 return response.Json;
 
             throw new ProductMappingException(response.Error?.Message ?? "Unknown error while mapping product");
+        }
+
+        public async Task<string> MapRoamingCountryJson(int? countryId, string countryCode, string category, bool isB2b, int? mapperId,
+            int? templateId, bool forceDownload, SiteMode siteMode)
+        {
+            string cCode = null;
+            if (countryId.HasValue)
+            {
+                var article = await _dpcApiClient.GetProduct<RoamingCountry>(countryId.Value, siteMode);
+                if (article != null)
+                {
+                    cCode = article.Alias;
+                }
+            }
+            else
+            {
+                cCode = countryCode;
+            }
+
+
+            if (!mapperId.HasValue)
+            {
+                PdfTemplate pdfTemplate;
+                if (templateId.HasValue)
+                {
+                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+                }
+                else
+                {
+                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(cCode, category, isB2b, siteMode);
+                }
+                mapperId = pdfTemplate.PdfScriptMapper.Id;
+            }
+
+            var mapper = await _dpcApiDbApiClient.GetPdfScriptMapper(mapperId.Value);
+
+            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(cCode, isB2b, siteMode);
+
+            var request = new PreviewJsonRequest
+            {
+                TariffData = new GenerateHtmlFileInfo
+                {
+                    Id = $"{cCode}_{isB2b}".GetHashCode(), // не очень правильно, но в данном случае - сойдет
+                    Timestamp = ConvertToTimestamp(DateTime.UtcNow),
+                    ForceDownload = forceDownload,
+                    DownloadUrl = productDownloadUrl,
+                    SiteMode = siteMode.ToString()
+                },
+
+                MapperData = new GenerateHtmlFileInfo
+                {
+                    Id = mapperId.Value,
+                    Timestamp = ConvertToTimestamp(mapper.Timestamp),
+                    ForceDownload = forceDownload,
+                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{mapper.PdfScriptMapperFile.AbsoluteUrl}",
+                    SiteMode = "db"
+                },
+            };
+
+            var response = await MakeRequest(request);
+            if (response.Success)
+                return response.Json;
+
+            throw new ProductMappingException(response.Error?.Message ?? "Unknown error while mapping product");
+
         }
 
         private async Task<PreviewJsonResponse> MakeRequest(PreviewJsonRequest request)
