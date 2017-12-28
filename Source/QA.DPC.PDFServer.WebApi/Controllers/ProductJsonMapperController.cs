@@ -23,8 +23,8 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         }
 
 
-        [HttpGet]
-        [HttpGet("{countryCode}")]
+        [HttpGet("{id}")]
+        [HttpGet("{mode}/{id}")]
         public async Task<ActionResult> Get(int id, int? mapperId, int? templateId, string category, bool forceDownload, string mode = "live")
         {
             try
