@@ -14,6 +14,6 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public string GetRoamingProductDownloadUrl(string countryCode, bool isB2B, SiteMode siteMode) => $"{_settings.BaseUrl}/mnr/country/{countryCode}?isB2C={(!isB2B).ToString().ToLowerInvariant()}";
+        public string GetRoamingProductDownloadUrl(string countryCode, bool isB2B, SiteMode siteMode) => $"{_settings.BaseUrl}/mnr/country/{countryCode}?isB2C={(!isB2B).ToString().ToLowerInvariant()}&calculateImpact=true";
     }
 }
