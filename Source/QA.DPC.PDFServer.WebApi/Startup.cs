@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,14 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using QA.Core.Cache;
 using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.Settings;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.Interfaces;
+using NullLogger = QA.Core.Logger.NullLogger;
 
 namespace QA.DPC.PDFServer.WebApi
 {
@@ -43,8 +39,14 @@ namespace QA.DPC.PDFServer.WebApi
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.Configure<PdfStaticFilesSettings>(Configuration.GetSection("PdfStaticFiles"));
             services.Configure<PdfSettings>(Configuration.GetSection("PdfPageSettings"));
+            services.Configure<CacheSettings>(Configuration.GetSection("CacheSettings"));
+
+            //TODO: используется в VersionedCacheProviderBase. разобраться, как скормить правильный логгер
+            services.AddSingleton<QA.Core.Logger.ILogger>(n => new NullLogger());
+            services.AddSingleton<IVersionedCacheProvider2, VersionedCacheProviderBase>();
             services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
             services.AddTransient<IDpcDbClient, DpcDbClient>();
+            services.AddTransient<ICachedDpcDbClient, CachedDpcDbClient>();
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
             services.AddTransient<IImpactApiClient, ImpactApiClient>();
@@ -53,6 +55,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IProductJsonMapper, ProductJsonMapper>();
             services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
 
+            services.AddMemoryCache();
             services.AddMvc();
         }
 

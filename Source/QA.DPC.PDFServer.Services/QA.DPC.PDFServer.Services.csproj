@@ -9,7 +9,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-    <PackageReference Include="Npgsql" Version="4.0.2" />
+    <PackageReference Include="Npgsql" Version="4.0.8" />
+    <PackageReference Include="QA.Core.Cache" Version="3.5.2-beta5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
   </ItemGroup>
 
