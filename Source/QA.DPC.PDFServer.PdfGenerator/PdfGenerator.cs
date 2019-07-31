@@ -24,7 +24,7 @@ namespace QA.DPC.PDFServer.PdfGenerator
                 }
                 return fileName;
             }
-            catch (PdfGenerationException e)
+            catch (PdfGenerationException)
             {
                 throw;
             }

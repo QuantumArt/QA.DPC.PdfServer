@@ -35,6 +35,7 @@ namespace QA.DPC.PDFServer.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
+            services.Configure<ConfigurationServiceSettings>(Configuration.GetSection("ConfigurationService"));
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
             services.Configure<DpcDbApiSettings>(Configuration.GetSection("DPCDbApi"));
             services.Configure<ImpactApiSettings>(Configuration.GetSection("ImpactApi"));
@@ -42,6 +43,8 @@ namespace QA.DPC.PDFServer.WebApi
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.Configure<PdfStaticFilesSettings>(Configuration.GetSection("PdfStaticFiles"));
             services.Configure<PdfSettings>(Configuration.GetSection("PdfPageSettings"));
+            services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
+            services.AddTransient<IDpcDbClient, DpcDbClient>();
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
             services.AddTransient<IImpactApiClient, ImpactApiClient>();
