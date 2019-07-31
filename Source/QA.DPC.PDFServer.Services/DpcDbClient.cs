@@ -86,7 +86,11 @@ namespace QA.DPC.PDFServer.Services
             if (highloadApiUsersContentId == null)
                 return null;
 
-            using (var cmd = CreateCommand(connection, $"SELECT accesstoken from content_{highloadApiUsersContentId} where name = 'PdfGeneration'"))
+            using (var cmd = CreateCommand(connection, $@"
+                        SELECT accesstoken 
+                        from content_{highloadApiUsersContentId}_united 
+                        where name = 'PdfGeneration' and archive = 0 and visible = 1
+                        "))
             {
                 var result = await cmd.ExecuteScalarAsync();
                 return result is DBNull ? null : (string) result;
