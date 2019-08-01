@@ -46,7 +46,6 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddSingleton<IVersionedCacheProvider2, VersionedCacheProviderBase>();
             services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
             services.AddTransient<IDpcDbClient, DpcDbClient>();
-            services.AddTransient<ICachedDpcDbClient, CachedDpcDbClient>();
             services.AddTransient<IDpcApiClient, DpcApiClient>();
             services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
             services.AddTransient<IImpactApiClient, ImpactApiClient>();

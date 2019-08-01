@@ -12,14 +12,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     {
         private readonly IConfigurationServiceClient _configurationServiceClient;
         private readonly IDpcDbClient _dpcDbClient;
-        private readonly ICachedDpcDbClient _cachedDpcDbClient;
         private readonly ILogger<ConfigurationController> _logger;
 
-        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient, ICachedDpcDbClient cachedDpcDbClient, ILogger<ConfigurationController> logger)
+        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient,  ILogger<ConfigurationController> logger)
         {
             _configurationServiceClient = configurationServiceClient;
             _dpcDbClient = dpcDbClient;
-            _cachedDpcDbClient = cachedDpcDbClient;
             _logger = logger;
         }
 
@@ -44,7 +42,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         {
             try
             {
-                var token = await _cachedDpcDbClient.GetHighloadApiAuthToken(customerCode);
+                var token = await _dpcDbClient.GetCachedHighloadApiAuthToken(customerCode);
 //                var configurationJson = await _configurationServiceClient.GetCustomerCodeConfigurationJson(customerCode);
                 return new JsonResult(new {success = true, token});
             }
