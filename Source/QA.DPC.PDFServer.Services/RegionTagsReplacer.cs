@@ -17,12 +17,12 @@ namespace QA.DPC.PDFServer.Services
             _dpcApiClient = dpcApiClient;
         }
 
-        public async Task<string> ReplaceTags(string input, int productId, SiteMode siteMode,  int? regionId)
+        public async Task<string> ReplaceTags(string customerCode, string input, int productId, SiteMode siteMode,  int? regionId)
         {
             if (!regionId.HasValue)
                 return input;
 
-            var regionTags = await _dpcApiClient.GetRegionTags(productId, siteMode);
+            var regionTags = await _dpcApiClient.GetRegionTags(customerCode, productId, siteMode);
             if (regionTags == null || regionTags.Length == 0)
                 return input;
 

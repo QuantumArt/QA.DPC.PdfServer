@@ -21,7 +21,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{customerCode}")]
+        [HttpGet()]
         public async Task<ActionResult> Get(string customerCode)
         {
             try
@@ -37,7 +37,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             }
         }
 
-        [HttpGet("highloadapitoken/{customerCode}")]
+        [HttpGet("highloadapitoken")]
         public async Task<ActionResult> GetHighloadApiToken(string customerCode)
         {
             try

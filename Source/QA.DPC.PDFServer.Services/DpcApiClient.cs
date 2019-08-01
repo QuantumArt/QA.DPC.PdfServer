@@ -18,22 +18,22 @@ namespace QA.DPC.PDFServer.Services
 {
     public class DpcApiClient : IDpcApiClient
     {
+        private readonly IDpcDbClient _dpcDbClient;
         private readonly DpcApiSettings _settings;
 
-        
-
-        public DpcApiClient(IOptions<DpcApiSettings> settings)
+        public DpcApiClient(IOptions<DpcApiSettings> settings, IDpcDbClient dpcDbClient)
         {
+            _dpcDbClient = dpcDbClient;
             _settings = settings.Value;
         }
 
 
-        public async Task<string> GetProductJson(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
+        public async Task<string> GetProductJson(string customerCode, string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var url = GetProductJsonDownloadUrl(slug, parameters, allFields, siteMode, fields);
+            var url = GetProductJsonDownloadUrl(customerCode, slug, parameters, allFields, siteMode, fields);
             try
             {
-                return await MakeRequest(url);
+                return await MakeRequest(customerCode, url);
             }
             catch (Exception ex)
             {
@@ -43,17 +43,17 @@ namespace QA.DPC.PDFServer.Services
 
         
 
-        public async Task<string> GetProductJson(int id, SiteMode siteMode)
+        public async Task<string> GetProductJson(string customerCode, int id, SiteMode siteMode)
         {
-            return await GetProductJson(id, false, siteMode);
+            return await GetProductJson(customerCode, id, false, siteMode);
         }
 
-        public async Task<string> GetProductJson(int id, bool allFields, SiteMode siteMode, string[] fields = null)
+        public async Task<string> GetProductJson(string customerCode, int id, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var url = GetProductJsonDownloadUrl(id, allFields, siteMode, fields);
+            var url = GetProductJsonDownloadUrl(customerCode, id, allFields, siteMode, fields);
             try
             {
-                return await MakeRequest(url);
+                return await MakeRequest(customerCode, url);
             }
             catch (Exception ex)
             {
@@ -61,54 +61,65 @@ namespace QA.DPC.PDFServer.Services
             }
         }
 
-        public async Task<T> GetProduct<T>(int id, SiteMode siteMode)
+        public async Task<T> GetProduct<T>(string customerCode, int id, SiteMode siteMode)
         {
-            return await GetProduct<T>(id, false, siteMode);
+            return await GetProduct<T>(customerCode, id, false, siteMode);
         }
 
-        public async Task<T> GetProduct<T>(int id, bool allFields, SiteMode siteMode, string[] fields = null)
+        public async Task<T> GetProduct<T>(string customerCode, int id, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var productJson = await GetProductJson(id, allFields, siteMode, fields);
+            var productJson = await GetProductJson(customerCode, id, allFields, siteMode, fields);
             return JsonConvert.DeserializeObject<T>(productJson);
         }
 
-        public async Task<T> GetProduct<T>(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
+        public async Task<T> GetProduct<T>(string customerCode, string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields = null)
         {
-            var productJson = await GetProductJson(slug, parameters, allFields, siteMode, fields);
+            var productJson = await GetProductJson(customerCode, slug, parameters, allFields, siteMode, fields);
             return JsonConvert.DeserializeObject<T>(productJson);
         }
 
-
-        public async Task<RegionTags[]> GetRegionTags(int productId, SiteMode siteMode)
+        public async Task<RegionTags[]> GetRegionTags(string customerCode, int productId, SiteMode siteMode)
         {
-            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/RegionTags?ProductId={productId}";
-            var json = await MakeRequest(url);
+            var url = GetRegionTagsUrl(customerCode, productId, siteMode);
+            var json = await MakeRequest(customerCode, url);
             return JsonConvert.DeserializeObject<RegionTags[]>(json);
         }
 
+        
 
-        public async Task<string> GetProductsJson(string productType, int[] ids, SiteMode siteMode, string[] fields = null)
+        public async Task<string> GetProductsJson(string customerCode, string productType, int[] ids, SiteMode siteMode, string[] fields = null)
         {
-            //вариант для получения одним запросом(когда починят).
-            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{productType}?Id={string.Join("{or}", ids)}";
+            
+            var url = GetProductsJsonDownloadUrl(customerCode, productType, ids, siteMode);
 
             if (fields != null && fields.Any())
             {
                 url += $"&fields={string.Join(",", fields)}";
             }
 
-            return await MakeRequest(url);
+            return await MakeRequest(customerCode, url);
         }
 
-        public async Task<IEnumerable<T>> GetProducts<T>(string productType, int[] ids, SiteMode siteMode, string[] fields = null)
+       
+
+        public async Task<IEnumerable<T>> GetProducts<T>(string customerCode, string productType, int[] ids, SiteMode siteMode, string[] fields = null)
         {
-            var productsJsons = await GetProductsJson(productType, ids, siteMode, fields);
+            var productsJsons = await GetProductsJson(customerCode, productType, ids, siteMode, fields);
             return JsonConvert.DeserializeObject<IEnumerable<T>>(productsJsons);
         }
-
-        public string GetProductJsonDownloadUrl(int id, bool allFields, SiteMode siteMode, string[] fields = null)
+        
+        private string GetProductsJsonDownloadUrl(string customerCode, string productType, int[] ids, SiteMode siteMode)
         {
-            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{id}";
+            var customerCodePart = GetCustomerCodeUrlPart(customerCode);
+            //вариант для получения одним запросом(когда починят).
+            return $"{_settings.BaseUrl}/{customerCodePart}invariant/{siteMode.ToString().ToLower()}/products/{productType}?Id={string.Join("{or}", ids)}";
+        }
+
+        public string GetProductJsonDownloadUrl(string customerCode, int id, bool allFields, SiteMode siteMode, string[] fields = null)
+        {
+            var customerCodePart = GetCustomerCodeUrlPart(customerCode);
+            
+            var url = $"{_settings.BaseUrl}/{customerCodePart}invariant/{siteMode.ToString().ToLower()}/products/{id}";
             if (allFields)
                 fields = new[] { "*" };
 
@@ -119,9 +130,10 @@ namespace QA.DPC.PDFServer.Services
             return url;
         }
 
-        private string GetProductJsonDownloadUrl(string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields)
+        private string GetProductJsonDownloadUrl(string customerCode, string slug, NameValueCollection parameters, bool allFields, SiteMode siteMode, string[] fields)
         {
-            var url = $"{_settings.BaseUrl}/{siteMode.ToString().ToLower()}/products/{slug}";
+            var customerCodePart = GetCustomerCodeUrlPart(customerCode);
+            var url = $"{_settings.BaseUrl}/{customerCodePart}invariant/{siteMode.ToString().ToLower()}/products/{slug}";
             if (parameters.HasKeys())
             {
                 var queryParams = string.Join("&", parameters.AllKeys.Select(key => $"{key}={parameters[key]}"));
@@ -140,15 +152,52 @@ namespace QA.DPC.PDFServer.Services
             return url;
         }
 
-
-        private async Task<string> MakeRequest(string url)
+        private string GetRegionTagsUrl(string customerCode, int productId, SiteMode siteMode)
         {
-            using (var client = new HttpClient())
+            var customerCodePart = GetCustomerCodeUrlPart(customerCode);
+            return $"{_settings.BaseUrl}/{customerCodePart}invariant/{siteMode.ToString().ToLower()}/products/RegionTags?ProductId={productId}";
+        }
+        
+        private string GetCustomerCodeUrlPart(string customerCode)
+        {
+            if (!_settings.UseConsolidatedApi)
             {
-                client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.XAuthToken);
-                return await client.GetStringAsync(url);
+                return string.Empty;
+            }
+
+            if (string.IsNullOrWhiteSpace(customerCode))
+            {
+                throw new CustomerCodeNotSpecifiedException("Customer code not specified");
+            }
+
+            return $"{customerCode}/";
+        }
+
+        private async Task<string> MakeRequest(string customerCode, string url)
+        {
+            string token;
+
+            if (_settings.UseConsolidatedApi)
+            {
+                token = string.IsNullOrWhiteSpace(customerCode)
+                    ? throw new CustomerCodeNotSpecifiedException("Customer code not specified")
+                    : await _dpcDbClient.GetCachedHighloadApiAuthToken(customerCode);
+            }
+            else
+            {
+                token = _settings.XAuthToken;
+            }
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                throw new HighloadApiTokenMissingException();
             }
             
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", token);
+                return await client.GetStringAsync(url);
+            }
         }
     }
 }

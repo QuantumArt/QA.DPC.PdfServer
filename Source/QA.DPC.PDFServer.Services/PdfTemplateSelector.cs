@@ -24,26 +24,26 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<PdfTemplate> GetPdfTemplateForProduct(int productId, string category, SiteMode siteMode)
+        public async Task<PdfTemplate> GetPdfTemplateForProduct(string customerCode, int productId, string category, SiteMode siteMode)
         {
             var fields = new List<string> {"Id"};
             fields.AddRange(_settings.PdfTemplateFields);
-            var productJson = await _dpcApiClient.GetProductJson(productId, false, siteMode, fields.ToArray());
-            return await FindPdfTemplateInJson(category, siteMode, productJson, _settings.PdfTemplateFields, false);
+            var productJson = await _dpcApiClient.GetProductJson(customerCode, productId, false, siteMode, fields.ToArray());
+            return await FindPdfTemplateInJson(customerCode, category, siteMode, productJson, _settings.PdfTemplateFields, false);
         }
 
        
 
-        public async Task<PdfTemplate> GetPdfTemplateForRoaming(string countryCode, string category, bool isB2B, SiteMode siteMode)
+        public async Task<PdfTemplate> GetPdfTemplateForRoaming(string customerCode, string countryCode, string category, bool isB2B, SiteMode siteMode)
         {
             var fields = new List<string>{"Id"};
             fields.AddRange(_settings.RoamingPdfTemplateFields);
             var query = new NameValueCollection{{"Alias", countryCode}};
-            var productJson = await _dpcApiClient.GetProductJson("RoamingCountry", query, false, siteMode, fields.ToArray());
-            return await FindPdfTemplateInJson(category, siteMode, productJson, _settings.RoamingPdfTemplateFields, true);
+            var productJson = await _dpcApiClient.GetProductJson(customerCode, "RoamingCountry", query, false, siteMode, fields.ToArray());
+            return await FindPdfTemplateInJson(customerCode, category, siteMode, productJson, _settings.RoamingPdfTemplateFields, true);
         }
 
-        private async Task<PdfTemplate> FindPdfTemplateInJson(string category, SiteMode siteMode, string productJson, string[] pdfTemplateFields, bool jsonIsArray)
+        private async Task<PdfTemplate> FindPdfTemplateInJson(string customerCode, string category, SiteMode siteMode, string productJson, string[] pdfTemplateFields, bool jsonIsArray)
         {
             if (productJson == null)
                 throw new GetProductJsonException();
@@ -74,7 +74,7 @@ namespace QA.DPC.PDFServer.Services
                 throw new TemplateNotFoundException();
 
             var distinctTemplateIds = templateSearchArray.SelectMany(x => x).Distinct().ToArray();
-            var templates = await _dpcApiClient.GetProducts<PdfTemplate>("pdf", distinctTemplateIds, siteMode, new[] { "*" });
+            var templates = await _dpcApiClient.GetProducts<PdfTemplate>(customerCode, "pdf", distinctTemplateIds, siteMode, new[] { "*" });
             var dpcPdfTemplates = templates as IList<PdfTemplate> ?? templates.ToList();
             for (var i = 0; i < templateSearchArray.Count; i++)
             {

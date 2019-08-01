@@ -36,13 +36,13 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         // GET api/pdf/5?category=print
         [HttpGet("{id}")]
         [HttpGet("{mode}/{id}")]
-        public async Task<ActionResult> Get(int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId, bool forceDownload, string mode = "live" )
+        public async Task<ActionResult> Get(string customerCode, int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId, bool forceDownload, string mode = "live" )
         {
             try
             {
                 var siteMode = ParseSiteMode(mode);
 
-                var generatedHtml = await _htmlGenerator.GenerateHtml(id, category, templateId, regionId, siteMode, forceDownload);
+                var generatedHtml = await _htmlGenerator.GenerateHtml(customerCode, id, category, templateId, regionId, siteMode, forceDownload);
                 return GetGenerationActionResult(attachment, asHtml, generatedHtml);
             }
             catch (GetProductJsonException ex)

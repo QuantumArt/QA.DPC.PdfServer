@@ -33,7 +33,7 @@ namespace QA.DPC.PDFServer.Services
             _settings = settings.Value;
         }
 
-        public async Task<string> MapProductJson(int productId, string category, int? mapperId, int? templateId, bool forceDownload, SiteMode siteMode)
+        public async Task<string> MapProductJson(string customerCode, int productId, string category, int? mapperId, int? templateId, bool forceDownload, SiteMode siteMode)
         {
             
             if (!mapperId.HasValue)
@@ -41,11 +41,11 @@ namespace QA.DPC.PDFServer.Services
                 PdfTemplate pdfTemplate;
                 if (templateId.HasValue)
                 {
-                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
                 }
                 else
                 {
-                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(productId, category, siteMode);
+                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(customerCode, productId, category, siteMode);
                 }
                 mapperId = pdfTemplate.PdfScriptMapper.Id;
             }
@@ -53,10 +53,10 @@ namespace QA.DPC.PDFServer.Services
             var mapper = await _dpcApiDbApiClient.GetPdfScriptMapper(mapperId.Value);
 
 
-            var productBase = await _dpcApiClient.GetProduct<DpcProductBase>(productId, false, siteMode, new[] { "Id", "UpdateDate" });
+            var productBase = await _dpcApiClient.GetProduct<DpcProductBase>(customerCode, productId, false, siteMode, new[] { "Id", "UpdateDate" });
             if (productBase == null)
                 throw new GetProductJsonException();
-            var productDownloadUrl = _dpcApiClient.GetProductJsonDownloadUrl(productId, true, siteMode);
+            var productDownloadUrl = _dpcApiClient.GetProductJsonDownloadUrl(customerCode, productId, true, siteMode);
 
             var request = new PreviewJsonRequest
             {
@@ -86,13 +86,13 @@ namespace QA.DPC.PDFServer.Services
             throw new ProductMappingException(response.Error?.Message ?? "Unknown error while mapping product");
         }
 
-        public async Task<string> MapRoamingCountryJson(int? countryId, string countryCode, string category, bool isB2b, int? mapperId,
+        public async Task<string> MapRoamingCountryJson(string customerCode, int? countryId, string countryCode, string category, bool isB2b, int? mapperId,
             int? templateId, bool forceDownload, SiteMode siteMode)
         {
             string cCode = null;
             if (countryId.HasValue)
             {
-                var article = await _dpcApiClient.GetProduct<RoamingCountry>(countryId.Value, siteMode);
+                var article = await _dpcApiClient.GetProduct<RoamingCountry>(customerCode, countryId.Value, siteMode);
                 if (article != null)
                 {
                     cCode = article.Alias;
@@ -109,11 +109,11 @@ namespace QA.DPC.PDFServer.Services
                 PdfTemplate pdfTemplate;
                 if (templateId.HasValue)
                 {
-                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
                 }
                 else
                 {
-                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(cCode, category, isB2b, siteMode);
+                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(customerCode, cCode, category, isB2b, siteMode);
                 }
                 mapperId = pdfTemplate.PdfScriptMapper.Id;
             }

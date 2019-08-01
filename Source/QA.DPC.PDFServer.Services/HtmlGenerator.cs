@@ -34,25 +34,25 @@ namespace QA.DPC.PDFServer.Services
 
         
 
-        public async Task<string> GenerateHtml(int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload)
+        public async Task<string> GenerateHtml(string customerCode, int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload)
         {
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
             {
-                pdfTemplate = await _client.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+                pdfTemplate = await _client.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(productId, category, siteMode);
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(customerCode, productId, category, siteMode);
             }
             
             if(pdfTemplate == null)
                 throw new TemplateNotFoundException();
             
-            var productBase = await _client.GetProduct<DpcProductBase>(productId, false, siteMode, new[] { "Id", "UpdateDate" });
+            var productBase = await _client.GetProduct<DpcProductBase>(customerCode, productId, false, siteMode, new[] { "Id", "UpdateDate" });
             if (productBase == null)
                 throw new GetProductJsonException();
-            var productDownloadUrl = _client.GetProductJsonDownloadUrl(productId, true, siteMode);
+            var productDownloadUrl = _client.GetProductJsonDownloadUrl(customerCode, productId, true, siteMode);
             var request = new GenerateHtmlRequest
             {
                 TariffData = new GenerateHtmlFileInfo
@@ -84,20 +84,20 @@ namespace QA.DPC.PDFServer.Services
             var response = await MakeGenerateRequest(request);
             if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
             {
-                var generateHtml = await GetHtml(response.RelativePath);
-                var replacedHtml = await _regionTagsReplacer.ReplaceTags(generateHtml, productId, siteMode, regionId);
+                var generatedHtml = await GetHtml(response.RelativePath);
+                var replacedHtml = await _regionTagsReplacer.ReplaceTags(customerCode, generatedHtml, productId, siteMode, regionId);
                 return replacedHtml;
             }
 
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
         }
 
-        public async Task<string> GenerateRoamingHtml(string category, int? roamingCountryId, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
+        public async Task<string> GenerateRoamingHtml(string customerCode, string category, int? roamingCountryId, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
         {
             string cCode = null;
             if (roamingCountryId.HasValue)
             {
-                var article = await _client.GetProduct<RoamingCountry>(roamingCountryId.Value, siteMode);
+                var article = await _client.GetProduct<RoamingCountry>(customerCode, roamingCountryId.Value, siteMode);
                 if (article != null)
                 {
                     cCode = article.Alias;
@@ -111,11 +111,11 @@ namespace QA.DPC.PDFServer.Services
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
             {
-                pdfTemplate = await _client.GetProduct<PdfTemplate>(templateId.Value, siteMode);
+                pdfTemplate = await _client.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(cCode, category, isB2B, siteMode);
+                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(customerCode, cCode, category, isB2B, siteMode);
             }
 
             if (pdfTemplate == null)

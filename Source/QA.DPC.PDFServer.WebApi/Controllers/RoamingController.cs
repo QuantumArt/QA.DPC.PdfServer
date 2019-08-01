@@ -29,13 +29,13 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         [HttpGet]
         [HttpGet("{countryCode}")]
-        public async Task<ActionResult> Get(string countryCode, int? id, string category, int? templateId, bool asHtml, bool attachment, bool forceDownload, bool isB2B, string mode = "live")
+        public async Task<ActionResult> Get(string customerCode, string countryCode, int? id, string category, int? templateId, bool asHtml, bool attachment, bool forceDownload, bool isB2B, string mode = "live")
         {
             try
             {
 
                 var siteMode = ParseSiteMode(mode);
-                var generatedHtml = await _htmlGenerator.GenerateRoamingHtml(category,id, countryCode, isB2B, templateId, siteMode, forceDownload);
+                var generatedHtml = await _htmlGenerator.GenerateRoamingHtml(customerCode, category,id, countryCode, isB2B, templateId, siteMode, forceDownload);
                 return GetGenerationActionResult(attachment, asHtml, generatedHtml);
             }
             catch (GetProductJsonException ex)

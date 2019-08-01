@@ -9,6 +9,7 @@ using QA.DPC.PDFServer.Services.Settings;
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
     [Route("api/[controller]")]
+    [Route("api/{customerCode}/[controller]")]
     public class BaseController : Controller
     {
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
