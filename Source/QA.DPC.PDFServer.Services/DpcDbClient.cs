@@ -88,7 +88,8 @@ namespace QA.DPC.PDFServer.Services
             switch (configuration.DbType)
             {
                 case DatabaseType.SqlServer:
-                    var sqlConnection = new SqlConnection(configuration.ConnectionString);
+                    var connectionString = configuration.ConnectionString.Replace("Provider=SQLOLEDB;", "");
+                    var sqlConnection = new SqlConnection(connectionString);
                     sqlConnection.Open();
                     return sqlConnection;
                 case DatabaseType.Postgres:
@@ -103,7 +104,7 @@ namespace QA.DPC.PDFServer.Services
         private async Task<int?> GetContentId(DbConnection connection)
         {
             using (var cmd = CreateCommand(connection,
-                "SELECT value from app_settings where key = 'HIGHLOAD_API_USERS_CONTENT_ID'"))
+                $"SELECT value from app_settings where {Escape(connection, "key")} = 'HIGHLOAD_API_USERS_CONTENT_ID'"))
             {
                 var result = await cmd.ExecuteScalarAsync();
                 return result is DBNull ? (int?) null : Convert.ToInt32(result);
@@ -136,6 +137,19 @@ namespace QA.DPC.PDFServer.Services
                     return new NpgsqlCommand(query, postgresConnection);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(connection), connection, null);
+            }
+        }
+
+        private string Escape(DbConnection connection, string value)
+        {
+            switch (connection)
+            {
+                case SqlConnection _:
+                    return $"[{value}]";
+                case NpgsqlConnection _:
+                    return $"\"{value.ToLower()}\"";
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

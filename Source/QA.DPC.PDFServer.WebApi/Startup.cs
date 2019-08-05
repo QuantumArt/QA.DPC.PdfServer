@@ -34,7 +34,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.Configure<ConfigurationServiceSettings>(Configuration.GetSection("ConfigurationService"));
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
             services.Configure<DpcDbApiSettings>(Configuration.GetSection("DPCDbApi"));
-            services.Configure<ImpactApiSettings>(Configuration.GetSection("ImpactApi"));
+//            services.Configure<ImpactApiSettings>(Configuration.GetSection("ImpactApi"));
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.Configure<PdfStaticFilesSettings>(Configuration.GetSection("PdfStaticFiles"));
@@ -45,9 +45,10 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddSingleton<QA.Core.Logger.ILogger>(n => new NullLogger());
             services.AddSingleton<IVersionedCacheProvider2, VersionedCacheProviderBase>();
             services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
+            services.AddTransient<IPdfGenerationSettingsProvider, PdfGenerationSettingsProvider>();
             services.AddTransient<IDpcDbClient, DpcDbClient>();
             services.AddTransient<IDpcApiClient, DpcApiClient>();
-            services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
+//            services.AddTransient<IDpcDbApiClient, DpcDbApiClient>();
             services.AddTransient<IImpactApiClient, ImpactApiClient>();
             services.AddTransient<IPdfTemplateSelector, PdfTemplateSelector>();
             services.AddTransient<IHtmlGenerator, HtmlGenerator>();

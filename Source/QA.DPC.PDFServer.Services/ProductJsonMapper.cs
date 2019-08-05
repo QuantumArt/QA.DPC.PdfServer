@@ -20,16 +20,18 @@ namespace QA.DPC.PDFServer.Services
     {
         private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly IDpcApiClient _dpcApiClient;
-        private readonly IDpcDbApiClient _dpcApiDbApiClient;
+//        private readonly IDpcDbApiClient _dpcApiDbApiClient;
         private readonly IImpactApiClient _impactApiClient;
+        private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
         private readonly NodeServerSettings _settings;
 
-        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IDpcDbApiClient dpcApiDbApiClient, IImpactApiClient impactApiClient)
+        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IImpactApiClient impactApiClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider)
         {
             _pdfTemplateSelector = pdfTemplateSelector;
             _dpcApiClient = dpcApiClient;
-            _dpcApiDbApiClient = dpcApiDbApiClient;
+//            _dpcApiDbApiClient = dpcApiDbApiClient;
             _impactApiClient = impactApiClient;
+            _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
             _settings = settings.Value;
         }
 
@@ -50,7 +52,8 @@ namespace QA.DPC.PDFServer.Services
                 mapperId = pdfTemplate.PdfScriptMapper.Id;
             }
 
-            var mapper = await _dpcApiDbApiClient.GetPdfScriptMapper(mapperId.Value);
+            var mapper = await _dpcApiClient.GetProduct<PdfScriptMapper>(customerCode, mapperId.Value, true, siteMode);
+//            var mapper = await _dpcApiDbApiClient.GetPdfScriptMapper(mapperId.Value);
 
 
             var productBase = await _dpcApiClient.GetProduct<DpcProductBase>(customerCode, productId, false, siteMode, new[] { "Id", "UpdateDate" });
@@ -104,9 +107,9 @@ namespace QA.DPC.PDFServer.Services
             }
 
 
+            PdfTemplate pdfTemplate = null;
             if (!mapperId.HasValue)
             {
-                PdfTemplate pdfTemplate;
                 if (templateId.HasValue)
                 {
                     pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
@@ -118,9 +121,11 @@ namespace QA.DPC.PDFServer.Services
                 mapperId = pdfTemplate.PdfScriptMapper.Id;
             }
 
-            var mapper = await _dpcApiDbApiClient.GetPdfScriptMapper(mapperId.Value);
+            
 
-            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(cCode, isB2b, siteMode);
+            var mapper = await _dpcApiClient.GetProduct<PdfScriptMapper>(customerCode, mapperId.Value, true, siteMode);
+            var impactApiBaseUrl = await _pdfGenerationSettingsProvider.GetImpactApiBaseUrlForRoaming(customerCode, pdfTemplate, siteMode);
+            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(impactApiBaseUrl, cCode, isB2b, siteMode);
 
             var request = new PreviewJsonRequest
             {

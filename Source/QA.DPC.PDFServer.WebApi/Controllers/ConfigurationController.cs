@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.WebApi.Logging;
 
@@ -12,12 +13,14 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     {
         private readonly IConfigurationServiceClient _configurationServiceClient;
         private readonly IDpcDbClient _dpcDbClient;
+        private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
         private readonly ILogger<ConfigurationController> _logger;
 
-        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient,  ILogger<ConfigurationController> logger)
+        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider,  ILogger<ConfigurationController> logger)
         {
             _configurationServiceClient = configurationServiceClient;
             _dpcDbClient = dpcDbClient;
+            _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
             _logger = logger;
         }
 
@@ -50,6 +53,23 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             {
                 _logger.LogError(LoggingEvents.GetCustomerCodeConfiguration, ex, "Error while getting customer code configuration");
                 return new JsonResult(new {success = false, error = $"Error while getting auth token: {ex.Message}" });
+            }
+        }
+    
+        [HttpGet("impactapiurl")]
+        public async Task<ActionResult> GetImpactApiUrl(string customerCode)
+        {
+            try
+            {
+                var url = await _pdfGenerationSettingsProvider.GetImpactApiBaseUrlForRoaming(customerCode, null,
+                    SiteMode.Live);
+//                var configurationJson = await _configurationServiceClient.GetCustomerCodeConfigurationJson(customerCode);
+                return new JsonResult(new {success = true, url});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(LoggingEvents.GetCustomerCodeConfiguration, ex, "Error while getting customer code configuration");
+                return new JsonResult(new {success = false, error = $"Error while getting impact api url: {ex.Message}" });
             }
         }
     }

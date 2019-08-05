@@ -14,27 +14,30 @@ using QA.DPC.PDFServer.Services.Settings;
 
 namespace QA.DPC.PDFServer.Services
 {
-    public class HtmlGenerator: IHtmlGenerator
+    public class HtmlGenerator : IHtmlGenerator
     {
         private readonly NodeServerSettings _settings;
         private readonly IPdfTemplateSelector _pdfTemplateSelector;
         private readonly IDpcApiClient _client;
         private readonly IImpactApiClient _impactApiClient;
         private readonly IRegionTagsReplacer _regionTagsReplacer;
+        private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
 
-        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer)
+        public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector,
+            IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer,
+            IPdfGenerationSettingsProvider pdfGenerationSettingsProvider)
         {
             _settings = settings.Value;
             _pdfTemplateSelector = pdfTemplateSelector;
             _client = client;
             _impactApiClient = impactApiClient;
             _regionTagsReplacer = regionTagsReplacer;
+            _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
         }
 
 
-        
-
-        public async Task<string> GenerateHtml(string customerCode, int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload)
+        public async Task<string> GenerateHtml(string customerCode, int productId, string category, int? templateId,
+            int? regionId, SiteMode siteMode, bool forceDownload)
         {
             PdfTemplate pdfTemplate;
             if (templateId.HasValue)
@@ -43,13 +46,15 @@ namespace QA.DPC.PDFServer.Services
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForProduct(customerCode, productId, category, siteMode);
+                pdfTemplate =
+                    await _pdfTemplateSelector.GetPdfTemplateForProduct(customerCode, productId, category, siteMode);
             }
-            
-            if(pdfTemplate == null)
+
+            if (pdfTemplate == null)
                 throw new TemplateNotFoundException();
-            
-            var productBase = await _client.GetProduct<DpcProductBase>(customerCode, productId, false, siteMode, new[] { "Id", "UpdateDate" });
+
+            var productBase = await _client.GetProduct<DpcProductBase>(customerCode, productId, false, siteMode,
+                new[] {"Id", "UpdateDate"});
             if (productBase == null)
                 throw new GetProductJsonException();
             var productDownloadUrl = _client.GetProductJsonDownloadUrl(customerCode, productId, true, siteMode);
@@ -67,7 +72,8 @@ namespace QA.DPC.PDFServer.Services
                 {
                     Id = pdfTemplate.PdfScriptMapper.Id,
                     Timestamp = ConvertToTimestamp(pdfTemplate.PdfScriptMapper.Timestamp),
-                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
+                    DownloadUrl =
+                        $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
                     ForceDownload = forceDownload,
                     SiteMode = siteMode.ToString()
                 },
@@ -85,14 +91,16 @@ namespace QA.DPC.PDFServer.Services
             if (response.Success && !string.IsNullOrWhiteSpace(response.RelativePath))
             {
                 var generatedHtml = await GetHtml(response.RelativePath);
-                var replacedHtml = await _regionTagsReplacer.ReplaceTags(customerCode, generatedHtml, productId, siteMode, regionId);
+                var replacedHtml =
+                    await _regionTagsReplacer.ReplaceTags(customerCode, generatedHtml, productId, siteMode, regionId);
                 return replacedHtml;
             }
 
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
         }
 
-        public async Task<string> GenerateRoamingHtml(string customerCode, string category, int? roamingCountryId, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
+        public async Task<string> GenerateRoamingHtml(string customerCode, string category, int? roamingCountryId,
+            string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload)
         {
             string cCode = null;
             if (roamingCountryId.HasValue)
@@ -115,13 +123,18 @@ namespace QA.DPC.PDFServer.Services
             }
             else
             {
-                pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(customerCode, cCode, category, isB2B, siteMode);
+                pdfTemplate =
+                    await _pdfTemplateSelector.GetPdfTemplateForRoaming(customerCode, cCode, category, isB2B, siteMode);
             }
 
             if (pdfTemplate == null)
                 throw new TemplateNotFoundException();
 
-            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(cCode, isB2B, siteMode);
+
+            var impactApiBaseUrl = await _pdfGenerationSettingsProvider.GetImpactApiBaseUrlForRoaming(customerCode, pdfTemplate, siteMode);
+
+            var productDownloadUrl =
+                _impactApiClient.GetRoamingProductDownloadUrl(impactApiBaseUrl, cCode, isB2B, siteMode);
 
 
             var request = new GenerateHtmlRequest
@@ -138,7 +151,8 @@ namespace QA.DPC.PDFServer.Services
                 {
                     Id = pdfTemplate.PdfScriptMapper.Id,
                     Timestamp = ConvertToTimestamp(pdfTemplate.PdfScriptMapper.Timestamp),
-                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
+                    DownloadUrl =
+                        $"{_settings.DpcStaticFilesScheme}:{pdfTemplate.PdfScriptMapper.PdfScriptMapperFile.AbsoluteUrl}",
                     ForceDownload = forceDownload,
                     SiteMode = siteMode.ToString()
                 },
@@ -159,7 +173,6 @@ namespace QA.DPC.PDFServer.Services
             }
 
             throw new HtmlGenerationException(response.Error?.Message ?? "Unknown error while generating html");
-
         }
 
         private async Task<string> GetHtml(string generatedHtmlRelativeUrl)
@@ -185,7 +198,7 @@ namespace QA.DPC.PDFServer.Services
 
         private static long ConvertToTimestamp(DateTime date)
         {
-            return ((DateTimeOffset)date).ToUnixTimeSeconds();
+            return ((DateTimeOffset) date).ToUnixTimeSeconds();
         }
     }
 }

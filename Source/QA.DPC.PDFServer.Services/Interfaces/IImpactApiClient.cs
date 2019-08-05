@@ -9,6 +9,6 @@ namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IImpactApiClient
     {
-        string GetRoamingProductDownloadUrl(string countryCode, bool isB2B, SiteMode siteMode);
+        string GetRoamingProductDownloadUrl(string impactApiBaseUrl, string countryCode, bool isB2B, SiteMode siteMode);
     }
 }

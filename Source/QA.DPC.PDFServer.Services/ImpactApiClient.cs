@@ -7,13 +7,13 @@ namespace QA.DPC.PDFServer.Services
 {
     public class ImpactApiClient : IImpactApiClient
     {
-        private readonly ImpactApiSettings _settings;
+//        private readonly ImpactApiSettings _settings;
+//
+//        public ImpactApiClient(IOptions<ImpactApiSettings> settings)
+//        {
+//            _settings = settings.Value;
+//        }
 
-        public ImpactApiClient(IOptions<ImpactApiSettings> settings)
-        {
-            _settings = settings.Value;
-        }
-
-        public string GetRoamingProductDownloadUrl(string countryCode, bool isB2B, SiteMode siteMode) => $"{_settings.BaseUrl}/mnr/country/{countryCode}?isB2C={(!isB2B).ToString().ToLowerInvariant()}&calculateImpact=true";
+        public string GetRoamingProductDownloadUrl(string impactApiBaseUrl, string countryCode, bool isB2B, SiteMode siteMode) => $"{impactApiBaseUrl}/mnr/country/{countryCode}?isB2C={(!isB2B).ToString().ToLowerInvariant()}&calculateImpact=true";
     }
 }

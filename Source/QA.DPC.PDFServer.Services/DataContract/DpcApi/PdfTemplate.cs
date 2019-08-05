@@ -10,5 +10,6 @@ namespace QA.DPC.PDFServer.Services.DataContract.DpcApi
         public string PdfTemplateEngine { get; set; }
         public PdfScriptMapper PdfScriptMapper { get; set; }
         public PdfTemplateCategory PdfTemplateCategory { get; set; }
+        public PdfGenerationSettingsProduct PdfGenerationSettings { get; set; }
     }
 }

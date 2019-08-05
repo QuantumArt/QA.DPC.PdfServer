@@ -188,14 +188,17 @@ namespace QA.DPC.PDFServer.Services
                 token = _settings.XAuthToken;
             }
 
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new HighloadApiTokenMissingException();
-            }
+//            if (string.IsNullOrWhiteSpace(token))
+//            {
+//                throw new HighloadApiTokenMissingException();
+//            }
             
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("X-Auth-Token", token);
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    client.DefaultRequestHeaders.Add("X-Auth-Token", token);    
+                }
                 return await client.GetStringAsync(url);
             }
         }
