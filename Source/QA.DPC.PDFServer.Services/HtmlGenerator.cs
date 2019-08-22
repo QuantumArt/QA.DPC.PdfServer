@@ -179,7 +179,7 @@ namespace QA.DPC.PDFServer.Services
         {
             using (var client = new HttpClient())
             {
-                return await client.GetStringAsync($"{_settings.GenerateBaseUrl}/output/{generatedHtmlRelativeUrl}");
+                return await client.GetStringAsync($"{_settings.OutputBaseUrl}/{generatedHtmlRelativeUrl}");
             }
         }
 

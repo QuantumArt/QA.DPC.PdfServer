@@ -4,5 +4,6 @@
     {
         public string DpcStaticFilesScheme { get; set; }
         public string GenerateBaseUrl { get; set; }
+        public string OutputBaseUrl { get; set; }
     }
 }
