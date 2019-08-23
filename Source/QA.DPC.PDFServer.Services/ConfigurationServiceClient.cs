@@ -13,10 +13,12 @@ namespace QA.DPC.PDFServer.Services
     public class ConfigurationServiceClient : IConfigurationServiceClient
     {
         private ConfigurationServiceSettings _settings;
+        private readonly IHttpClientFactory _factory;
 
-        public ConfigurationServiceClient(IOptions<ConfigurationServiceSettings> settings)
+        public ConfigurationServiceClient(IOptions<ConfigurationServiceSettings> settings, IHttpClientFactory factory)
         {
             _settings = settings.Value;
+            _factory = factory;
         }
 
         public async Task<CustomerCodeConfiguration> GetCustomerCodeConfiguration(string customerCode)
@@ -52,12 +54,9 @@ namespace QA.DPC.PDFServer.Services
 
         private async Task<string> MakeRequest(string url)
         {
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.XAuthToken);
-
-                return await client.GetStringAsync(url);
-            }
+            var client = _factory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.XAuthToken);
+            return await client.GetStringAsync(url);
         }
 
         private string GetCustomerCodeConfigurationUrl(string customerCode)

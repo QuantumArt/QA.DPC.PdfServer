@@ -22,10 +22,11 @@ namespace QA.DPC.PDFServer.Services
         private readonly IImpactApiClient _impactApiClient;
         private readonly IRegionTagsReplacer _regionTagsReplacer;
         private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
+        private readonly IHttpClientFactory _factory;
 
         public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector,
             IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer,
-            IPdfGenerationSettingsProvider pdfGenerationSettingsProvider)
+            IPdfGenerationSettingsProvider pdfGenerationSettingsProvider, IHttpClientFactory factory)
         {
             _settings = settings.Value;
             _pdfTemplateSelector = pdfTemplateSelector;
@@ -33,6 +34,7 @@ namespace QA.DPC.PDFServer.Services
             _impactApiClient = impactApiClient;
             _regionTagsReplacer = regionTagsReplacer;
             _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
+            _factory = factory;
         }
 
 
@@ -177,23 +179,19 @@ namespace QA.DPC.PDFServer.Services
 
         private async Task<string> GetHtml(string generatedHtmlRelativeUrl)
         {
-            using (var client = new HttpClient())
-            {
-                return await client.GetStringAsync($"{_settings.OutputBaseUrl}/{generatedHtmlRelativeUrl}");
-            }
+            var client = _factory.CreateClient();
+            return await client.GetStringAsync($"{_settings.OutputBaseUrl}/{generatedHtmlRelativeUrl}");
         }
 
 
         private async Task<GenerateHtmlResponse> MakeGenerateRequest(GenerateHtmlRequest request)
         {
-            using (var client = new HttpClient())
-            {
-                var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/generate",
-                    new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var client = _factory.CreateClient();
+            var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/generate",
+                new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
-                var stringResult = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<GenerateHtmlResponse>(stringResult);
-            }
+            var stringResult = await result.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<GenerateHtmlResponse>(stringResult);
         }
 
         private static long ConvertToTimestamp(DateTime date)

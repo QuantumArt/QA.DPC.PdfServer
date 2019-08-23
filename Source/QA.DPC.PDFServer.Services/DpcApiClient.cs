@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using QA.DPC.PDFServer.Services.Settings;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
+using QA.DPC.PDFServer.Services.Settings;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace QA.DPC.PDFServer.Services
 {
@@ -20,11 +17,13 @@ namespace QA.DPC.PDFServer.Services
     {
         private readonly IDpcDbClient _dpcDbClient;
         private readonly DpcApiSettings _settings;
+        private readonly IHttpClientFactory _factory;
 
-        public DpcApiClient(IOptions<DpcApiSettings> settings, IDpcDbClient dpcDbClient)
+        public DpcApiClient(IOptions<DpcApiSettings> settings, IDpcDbClient dpcDbClient, IHttpClientFactory factory)
         {
             _dpcDbClient = dpcDbClient;
             _settings = settings.Value;
+            _factory = factory;
         }
 
 
@@ -188,19 +187,16 @@ namespace QA.DPC.PDFServer.Services
                 token = _settings.XAuthToken;
             }
 
-//            if (string.IsNullOrWhiteSpace(token))
-//            {
-//                throw new HighloadApiTokenMissingException();
-//            }
-            
-            using (var client = new HttpClient())
+            var client = _factory.CreateClient();           
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                if (!string.IsNullOrWhiteSpace(token))
-                {
-                    client.DefaultRequestHeaders.Add("X-Auth-Token", token);    
-                }
-                return await client.GetStringAsync(url);
+                request.Headers.Add("X-Auth-Token", token);
             }
+
+            var response = await client.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

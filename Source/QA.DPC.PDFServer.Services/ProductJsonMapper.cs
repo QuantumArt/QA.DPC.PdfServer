@@ -24,8 +24,10 @@ namespace QA.DPC.PDFServer.Services
         private readonly IImpactApiClient _impactApiClient;
         private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
         private readonly NodeServerSettings _settings;
+        private readonly IHttpClientFactory _factory;
 
-        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IImpactApiClient impactApiClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider)
+
+        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IImpactApiClient impactApiClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider, IHttpClientFactory factory)
         {
             _pdfTemplateSelector = pdfTemplateSelector;
             _dpcApiClient = dpcApiClient;
@@ -33,6 +35,7 @@ namespace QA.DPC.PDFServer.Services
             _impactApiClient = impactApiClient;
             _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
             _settings = settings.Value;
+            _factory = factory;
         }
 
         public async Task<string> MapProductJson(string customerCode, int productId, string category, int? mapperId, int? templateId, bool forceDownload, SiteMode siteMode)
@@ -158,14 +161,12 @@ namespace QA.DPC.PDFServer.Services
 
         private async Task<PreviewJsonResponse> MakeRequest(PreviewJsonRequest request)
         {
-            using (var client = new HttpClient())
-            {
-                var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/previewJson",
-                    new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var client = _factory.CreateClient();
+            var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/previewJson",
+                new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
-                var stringResult = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<PreviewJsonResponse>(stringResult);
-            }
+            var stringResult = await result.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<PreviewJsonResponse>(stringResult);
         }
 
         private static long ConvertToTimestamp(DateTime date)

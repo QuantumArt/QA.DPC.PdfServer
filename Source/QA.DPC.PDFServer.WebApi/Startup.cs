@@ -31,6 +31,7 @@ namespace QA.DPC.PDFServer.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
+            services.AddHttpClient();
             services.Configure<ConfigurationServiceSettings>(Configuration.GetSection("ConfigurationService"));
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
             services.Configure<DpcDbApiSettings>(Configuration.GetSection("DPCDbApi"));
