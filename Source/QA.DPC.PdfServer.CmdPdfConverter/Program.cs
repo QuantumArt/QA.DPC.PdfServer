@@ -21,7 +21,7 @@ namespace QA.DPC.PdfServer.CmdPdfConverter
                 using (var reader = File.OpenText(parsedArgs.InputFile))
                 {
                     var html = reader.ReadToEnd();
-                    var pdfDocument = PdfGenerator.GeneratePdf(html, GetPdfSettins());
+                    var pdfDocument = PdfGenerator.GeneratePdf(html, GetPdfSettins(), null);
                     using (var writeStream = File.OpenWrite(parsedArgs.OutputFile))
                     {
                         using (var writer = new BinaryWriter(writeStream))

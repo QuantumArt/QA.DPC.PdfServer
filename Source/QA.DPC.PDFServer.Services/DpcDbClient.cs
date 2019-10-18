@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using QA.Core.Cache;
+using QA.DotNetCore.Caching.Interfaces;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
@@ -14,12 +14,12 @@ namespace QA.DPC.PDFServer.Services
     public class DpcDbClient : IDpcDbClient
     {
         private readonly IConfigurationServiceClient _configurationServiceClient;
-        private readonly IVersionedCacheProvider2 _cacheProvider;
+        private readonly ICacheProvider _cacheProvider;
         private CacheSettings _cacheSettings;
 
 
         public DpcDbClient(IConfigurationServiceClient configurationServiceClient,
-            IVersionedCacheProvider2 cacheProvider, IOptions<CacheSettings> cacheSettings)
+            ICacheProvider cacheProvider, IOptions<CacheSettings> cacheSettings)
         {
             _configurationServiceClient = configurationServiceClient;
             _cacheProvider = cacheProvider;

@@ -14,6 +14,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
     {
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
         protected PdfSettings _pdfPageSettings;
+        protected IServiceProvider _serviceProvider;
 
         protected static SiteMode ParseSiteMode(string mode)
         {
@@ -47,12 +48,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             }
             if (attachment)
             {
-                var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings);
+                var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider);
                 Response.Headers.Add("Content-Type", "application/pdf");
                 //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
                 return new FileContentResult(pdf, "application/pdf");
             }
-            var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _pdfStaticFilesSettings.RootOutputDirectory);
+            var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider, _pdfStaticFilesSettings.RootOutputDirectory);
             return new JsonResult(new
             {
                 success = true,

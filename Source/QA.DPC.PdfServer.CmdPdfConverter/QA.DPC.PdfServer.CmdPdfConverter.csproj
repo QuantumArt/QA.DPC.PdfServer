@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QA.DPC.PDFServer.PdfGenerator\QA.DPC.PDFServer.PdfGenerator.csproj">
-      <Project>{91ebafad-6063-40d8-930d-0cd54b4aaea2}</Project>
+      <Project>{95C1CA12-2AF4-455B-AB65-64C03D74FDCF}</Project>
       <Name>QA.DPC.PDFServer.PdfGenerator</Name>
     </ProjectReference>
   </ItemGroup>

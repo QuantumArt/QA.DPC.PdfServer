@@ -8,12 +8,16 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using NLog.Web;
-using QA.Core.Cache;
 using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.Settings;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.Interfaces;
-using NullLogger = QA.Core.Logger.NullLogger;
+using QA.DotNetCore.Caching.Interfaces;
+using QA.DotNetCore.Caching;
+
+#if NETCOREAPP
+using Wkhtmltopdf.NetCore;
+#endif
 
 namespace QA.DPC.PDFServer.WebApi
 {
@@ -42,9 +46,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.Configure<PdfSettings>(Configuration.GetSection("PdfPageSettings"));
             services.Configure<CacheSettings>(Configuration.GetSection("CacheSettings"));
 
-            //TODO: используется в VersionedCacheProviderBase. разобраться, как скормить правильный логгер
-            services.AddSingleton<QA.Core.Logger.ILogger>(n => new NullLogger());
-            services.AddSingleton<IVersionedCacheProvider2, VersionedCacheProviderBase>();
+            services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
             services.AddTransient<IPdfGenerationSettingsProvider, PdfGenerationSettingsProvider>();
             services.AddTransient<IDpcDbClient, DpcDbClient>();
@@ -55,7 +57,10 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IHtmlGenerator, HtmlGenerator>();
             services.AddTransient<IProductJsonMapper, ProductJsonMapper>();
             services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
-
+            
+#if NETCOREAPP
+            services.AddWkhtmltopdf();
+#endif
             services.AddMemoryCache();
             services.AddMvc();
         }
