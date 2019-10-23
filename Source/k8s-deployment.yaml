@@ -20,6 +20,23 @@ spec:
           image: spbdocker03:5000/dpc-pdfgenerator/pdfserver-api:||version||
           ports:
             - containerPort: 80
+          env:
+          - name: PdfStaticFiles__RootOutputDirectory
+            value: /pdfoutput
+          - name: ConfigurationService__BaseUrl
+            value: http://mscdev02:54321
+          - name: ConfigurationService__XAuthToken
+            value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJRUC5Db25maWd1cmF0aW9uU2VydmljZS5Jc3N1ZXIiLCJleHAiOjE1Nzg1ODM4NjIsImF1ZCI6IlFQLkNvbmZpZ3VyYXRpb25TZXJ2aWNlLkF1ZGllbmNlIn0.wN-we_Wezxtv3rtLn3mEQ9tZngPwfgn45Ta7kLfKO-Q
+          - name: ConfigurationService__UseConsolidatedApi
+            value: 'true'
+          - name: DPCApi__BaseUrl
+            value: http://mscdev02:52095/api
+          - name: DPCApi__UseConsolidatedApi
+            value: 'true'
+          - name: NodeServer__GenerateBaseUrl
+            value: http://pdflayout-api.dpc-pdfgenerator.dev.qsupport.ru
+          - name: NodeServer__OutputBaseUrl
+            value: http://media.dpc-pdfgenerator.dev.qsupport.ru
 ---
 apiVersion: v1
 kind: Service
