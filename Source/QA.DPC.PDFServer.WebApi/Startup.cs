@@ -38,7 +38,7 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddHttpClient();
             services.Configure<ConfigurationServiceSettings>(Configuration.GetSection("ConfigurationService"));
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
-            services.Configure<DpcDbApiSettings>(Configuration.GetSection("DPCDbApi"));
+//            services.Configure<DpcDbApiSettings>(Configuration.GetSection("DPCDbApi"));
 //            services.Configure<ImpactApiSettings>(Configuration.GetSection("ImpactApi"));
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));

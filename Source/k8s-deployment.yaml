@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdfserver-api-deployment
+  namespace: dpc-pdfgenerator
+  labels:
+    app: pdfserver-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdfserver-api
+  template:
+    metadata:
+      labels:
+        app: pdfserver-api
+    spec:
+      containers:
+        - name: pdfserver-api
+          image: spbdocker03:5000/dpc-pdfgenerator/pdfserver-api:||version||
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdfserver-api-service
+  namespace: dpc-pdfgenerator
+spec:
+  type: ClusterIP
+  selector:
+    app: pdfserver-api
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pdfserver-api-ingress
+  namespace: dpc-pdfgenerator
+spec:
+  rules:
+  - host: pdfserver-api.dpc-pdfgenerator.dev.qsupport.ru
+    http:
+      paths:
+      - backend:
+          serviceName: pdfserver-api-service
+          servicePort: 80
