@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pdfserver-api-deployment
-  namespace: dpc-pdfgenerator
+  name: pdfserver-api
+  namespace: dpc
   labels:
     app: pdfserver-api
 spec:
@@ -24,25 +24,40 @@ spec:
           - name: PdfStaticFiles__RootOutputDirectory
             value: /pdfoutput
           - name: ConfigurationService__BaseUrl
-            value: http://mscdev02:54321
+            valueFrom:
+              configMapKeyRef:
+                name: dpc-config
+                key: CONFIGURATION_SERVICE_HOST
           - name: ConfigurationService__XAuthToken
-            value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJRUC5Db25maWd1cmF0aW9uU2VydmljZS5Jc3N1ZXIiLCJleHAiOjE1Nzg1ODM4NjIsImF1ZCI6IlFQLkNvbmZpZ3VyYXRpb25TZXJ2aWNlLkF1ZGllbmNlIn0.wN-we_Wezxtv3rtLn3mEQ9tZngPwfgn45Ta7kLfKO-Q
+            valueFrom:
+              configMapKeyRef:
+                name: dpc-config
+                key: CONFIGURATION_SERVICE_TOKEN
           - name: ConfigurationService__UseConsolidatedApi
             value: 'true'
           - name: DPCApi__BaseUrl
-            value: http://mscdev02:52095/api
+            valueFrom:
+              configMapKeyRef:
+                name: dpc-config
+                key: API_HOST
           - name: DPCApi__UseConsolidatedApi
             value: 'true'
           - name: NodeServer__GenerateBaseUrl
-            value: http://pdflayout-api.dpc-pdfgenerator.dev.qsupport.ru
+            valueFrom:
+              configMapKeyRef:
+                name: dpc-config
+                key: PDF_LAYOUT_API_HOST          
           - name: NodeServer__OutputBaseUrl
-            value: http://media.dpc-pdfgenerator.dev.qsupport.ru
+            valueFrom:
+              configMapKeyRef:
+                name: dpc-config
+                key: MEDIA_API_HOST         
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: pdfserver-api-service
-  namespace: dpc-pdfgenerator
+  name: pdfserver-api
+  namespace: dpc
 spec:
   type: ClusterIP
   selector:
@@ -54,13 +69,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: pdfserver-api-ingress
-  namespace: dpc-pdfgenerator
+  name: pdfserver-api
+  namespace: dpc
 spec:
   rules:
   - host: pdfserver-api.dpc-pdfgenerator.dev.qsupport.ru
     http:
       paths:
       - backend:
-          serviceName: pdfserver-api-service
+          serviceName: pdfserver-api
           servicePort: 80
