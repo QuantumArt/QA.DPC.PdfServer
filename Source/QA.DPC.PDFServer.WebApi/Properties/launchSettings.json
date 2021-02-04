@@ -1,21 +1,5 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:53925/",
-      "sslPort": 0
-    }
-  },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "api/Roaming/Aviaroaming?category=test&attachment=true",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
     "QA.DPC.PDFServer.WebApi": {
       "commandName": "Project",
       "launchBrowser": true,

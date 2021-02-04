@@ -1,30 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
-using QA.DPC.PDFServer.WebApi.Logging;
+using QA.DPC.PDFServer.WebApi.Controllers;
 
-namespace QA.DPC.PDFServer.WebApi.Controllers
+namespace QA.DPC.PdfServer.RoamingApi
 {
     public class RoamingController : BaseController
     {
-        private readonly IHtmlGenerator _htmlGenerator;
-        private readonly ILogger<RoamingController> _logger;
+        private readonly RoamingHtmlGenerator _htmlGenerator;
 
-        public RoamingController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, ILogger<RoamingController> logger, IServiceProvider serviceProvider)
+        public RoamingController(RoamingHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, IServiceProvider serviceProvider)
         {
             _htmlGenerator = htmlGenerator;
             _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
             _pdfPageSettings = pdfSettings.Value;
-            _logger = logger;
             _serviceProvider = serviceProvider;
         }
 
@@ -41,27 +35,27 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             }
             catch (GetProductJsonException ex)
             {
-                _logger.LogError(LoggingEvents.GetProduct, ex, "Error while getting product json");
+                Logger.Error(ex, "Error while getting product json");
                 return new JsonResult(new { success = false, error = $"Error while getting product json: {ex.Message}" });
             }
             catch (TemplateNotFoundException ex)
             {
-                _logger.LogError(LoggingEvents.TemplateNotFound, ex, "Template not found");
+                Logger.Error(ex, "Template not found");
                 return new JsonResult(new { success = false, error = $"Template not found: {ex.Message}" });
             }
             catch (HtmlGenerationException ex)
             {
-                _logger.LogError(LoggingEvents.HtmlGeneration, ex, "Error while generating html");
+                Logger.Error(ex, "Error while generating html");
                 return new JsonResult(new { success = false, error = $"Error while generating html: {ex.Message}" });
             }
             catch (PdfGenerationException ex)
             {
-                _logger.LogError(LoggingEvents.PdfGeneration, ex, "Error while generating pdf");
+                Logger.Error(ex, "Error while generating pdf");
                 return new JsonResult(new { success = false, error = $"Error while generating pdf: {ex.Message}" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(LoggingEvents.General, ex, "General error");
+                Logger.Error(ex, "General error");
                 return new JsonResult(new { success = false, error = ex.Message });
             }
 

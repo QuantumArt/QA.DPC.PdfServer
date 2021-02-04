@@ -36,27 +36,5 @@ namespace QA.DPC.PDFServer.Services
                 ? await GetDefaultSettings(customerCode, siteMode)
                 : JsonConvert.DeserializeObject<PdfGenerationSettings>(template.PdfGenerationSettings.ValueJson);
         }
-
-        public async Task<string> GetImpactApiBaseUrlForRoaming(string customerCode, PdfTemplate pdfTemplate, SiteMode siteMode)
-        {
-            var settings = await GetSettings(customerCode, pdfTemplate, siteMode);
-            
-            if (settings == null)
-            {
-                throw new RoamingPdfGenerationNotConfiguredException("Pdf generation settings not found");
-            }
-
-            if (!settings.RoamingGenerationEnabled)
-            {
-                throw new RoamingPdfGenerationNotConfiguredException("Roaming pdf generation disabled");
-            }
-
-            if (string.IsNullOrWhiteSpace(settings.ImpactApiBaseUrl))
-            {
-                throw new RoamingPdfGenerationNotConfiguredException("Impact api base url is not specified");
-            }
-
-            return settings.ImpactApiBaseUrl;
-        }
     }
 }

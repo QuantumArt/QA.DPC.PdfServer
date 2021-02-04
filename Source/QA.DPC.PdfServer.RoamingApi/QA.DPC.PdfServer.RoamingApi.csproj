@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\QA.DPC.PDFServer.WebApi\QA.DPC.PDFServer.WebApi.csproj" />
+    </ItemGroup>
+
+    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+        <PostBuildEvent>
+            xcopy "$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).pdb" "$(MSBuildProjectDirectory)\..\QA.DPC.PDFServer.WebApi\bin\$(Configuration)\$(TargetFramework)\" /y
+            xcopy "$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).dll" "$(MSBuildProjectDirectory)\..\QA.DPC.PDFServer.WebApi\bin\$(Configuration)\$(TargetFramework)\" /y
+            xcopy "$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).pdb" "$(MSBuildProjectDirectory)\..\QA.DPC.PDFServer.WebApi\bin\$(Configuration)\$(TargetFramework)\publish\" /y
+            xcopy "$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).dll" "$(MSBuildProjectDirectory)\..\QA.DPC.PDFServer.WebApi\bin\$(Configuration)\$(TargetFramework)\publish\" /y
+        </PostBuildEvent>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+        <PostBuildEvent>
+            cp "$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(MSBuildProjectName).pdb" "$(MSBuildProjectDirectory)/../QA.DPC.PDFServer.WebApi/bin/$(Configuration)/$(TargetFramework)/"
+            cp "$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(MSBuildProjectName).dll" "$(MSBuildProjectDirectory)/../QA.DPC.PDFServer.WebApi/bin/$(Configuration)/$(TargetFramework)/"
+            cp "$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(MSBuildProjectName).pdb" "$(MSBuildProjectDirectory)/../QA.DPC.PDFServer.WebApi/bin/$(Configuration)/$(TargetFramework)/"
+            cp "$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(MSBuildProjectName).dll" "$(MSBuildProjectDirectory)/../QA.DPC.PDFServer.WebApi/bin/$(Configuration)/$(TargetFramework)/"
+        </PostBuildEvent>
+    </PropertyGroup>
+
+</Project>

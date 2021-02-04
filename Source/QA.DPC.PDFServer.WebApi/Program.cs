@@ -10,7 +10,7 @@ namespace QA.DPC.PDFServer.WebApi
     {
         public static void Main(string[] args)
         {
-            NLog.LogManager.LoadConfiguration("NLog.config");
+            NLog.LogManager.LoadConfiguration("nlog.config");
             BuildWebHost(args).Run();
         }
 

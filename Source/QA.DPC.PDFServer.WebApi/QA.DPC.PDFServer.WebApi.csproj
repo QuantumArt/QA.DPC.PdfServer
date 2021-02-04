@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\QA.DPC.PdfServer.DevApi\QA.DPC.PdfServer.DevApi.csproj" />
     <ProjectReference Include="..\QA.DPC.PDFServer.PdfGenerator\QA.DPC.PDFServer.PdfGenerator.csproj" />
     <ProjectReference Include="..\QA.DPC.PDFServer.Services\QA.DPC.PDFServer.Services.csproj" />
   </ItemGroup>

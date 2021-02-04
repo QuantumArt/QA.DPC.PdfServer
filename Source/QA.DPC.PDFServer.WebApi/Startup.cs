@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -12,7 +15,7 @@ using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DotNetCore.Caching.Interfaces;
 using QA.DotNetCore.Caching;
-
+using QA.DPC.PdfServer.DevApi;
 #if NETCOREAPP
 using Wkhtmltopdf.NetCore;
 #endif
@@ -21,12 +24,15 @@ namespace QA.DPC.PDFServer.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            CurrentEnvironment = env;
         }
 
         private IConfiguration Configuration { get; }
+        
+        public IWebHostEnvironment CurrentEnvironment { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -53,13 +59,34 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
             services.AddWkhtmltopdf();
             services.AddMemoryCache();
-            services.AddMvc(options => options.EnableEndpointRouting = false);
+            services.AddMvc().ConfigureApplicationPartManager(apm =>
+            {
+                apm.ApplicationParts.Clear();
+                if (CurrentEnvironment.IsDevelopment())
+                {
+                    apm.ApplicationParts.Add(new AssemblyPart(typeof(ConfigurationController).Assembly));
+
+                    var libName = "QA.DPC.PdfServer.RoamingApi";
+                    var assembly = Assembly.LoadFile(Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, libName + ".dll"
+                    ));
+                    var t = assembly.GetType($"{libName}.Startup");
+                    if (t != null)
+                    {
+                        var m = t.GetMethod("ConfigureServices");
+                        if (m != null)
+                        {
+                            m.Invoke(null, new object[] {services});
+                        }
+                    }
+                    
+                }
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -68,10 +95,13 @@ namespace QA.DPC.PDFServer.WebApi
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
+                .AllowAnyHeader());
 
-            app.UseMvc();
+            app.UseRouting();
+            app.UseEndpoints(routes =>
+            {
+                routes.MapControllers();
+            });
             
             var staticFileSettings = Configuration.GetSection("PdfStaticFiles").Get<PdfStaticFilesSettings>();
             if (staticFileSettings.ServeStatic)

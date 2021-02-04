@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 using QA.DPC.PDFServer.PdfGenerator;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Settings;
@@ -15,6 +16,12 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
         protected PdfStaticFilesSettings _pdfStaticFilesSettings;
         protected PdfSettings _pdfPageSettings;
         protected IServiceProvider _serviceProvider;
+        protected readonly ILogger Logger;
+
+        public BaseController()
+        {
+            Logger = LogManager.GetLogger(GetType().ToString());
+        }
 
         protected static SiteMode ParseSiteMode(string mode)
         {
@@ -41,7 +48,6 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
                 {
                     var htmlBytes = Encoding.UTF8.GetBytes(generatedHtml);
                     Response.Headers.Add("Content-Type", "text/html");
-                    //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.html; size={htmlBytes.Length.ToString()}");
                     return new FileContentResult(htmlBytes, "text/html");
                 }
                 return new JsonResult(new { success = true, generatedHtml = generatedHtml });
@@ -50,7 +56,6 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             {
                 var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider);
                 Response.Headers.Add("Content-Type", "application/pdf");
-                //Response.Headers.Add("Content-Disposition", $"attachment;filename={id}_{category}.pdf; size={pdf.Length.ToString()}");
                 return new FileContentResult(pdf, "application/pdf");
             }
             var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider, _pdfStaticFilesSettings.RootOutputDirectory);
