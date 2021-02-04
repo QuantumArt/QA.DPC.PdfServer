@@ -254,4 +254,4 @@ paket-files/
 
 **/appsettings.*.json
 
-/projectfiles.tar
+**/projectfiles.tar
