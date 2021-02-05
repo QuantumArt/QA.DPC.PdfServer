@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using QA.DPC.PDFServer.PdfGenerator;
+using QA.DPC.PdfServer.RoamingApi.Services;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;

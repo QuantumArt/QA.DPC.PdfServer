@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 
-namespace QA.DPC.PdfServer.RoamingApi
+namespace QA.DPC.PdfServer.RoamingApi.Interfaces
 {
     public interface IRoamingJsonMapper
     {

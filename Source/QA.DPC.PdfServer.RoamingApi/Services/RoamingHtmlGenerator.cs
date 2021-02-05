@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using QA.DPC.PdfServer.RoamingApi.Interfaces;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
@@ -9,14 +10,21 @@ using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
 
-namespace QA.DPC.PdfServer.RoamingApi
+namespace QA.DPC.PdfServer.RoamingApi.Services
 {
     public class RoamingHtmlGenerator : HtmlGenerator
     {
-        private RoamingPdfGenerationSettingsProvider _provider;
-        public RoamingHtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer, RoamingPdfGenerationSettingsProvider roamingPdfGenerationSettingsProvider, IHttpClientFactory factory) : base(settings, pdfTemplateSelector, client, impactApiClient, regionTagsReplacer, roamingPdfGenerationSettingsProvider, factory)
+
+        private IImpactApiClient _impactApiClient;
+
+        private ImpactApiSettings _impactApiSettings;
+        public RoamingHtmlGenerator(IOptions<NodeServerSettings> settings, IOptions<ImpactApiSettings> impactSettings, 
+            IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient client, IImpactApiClient impactApiClient, 
+            IRegionTagsReplacer regionTagsReplacer, PdfGenerationSettingsProvider pdfGenerationSettingsProvider, IHttpClientFactory factory) : 
+            base(settings, pdfTemplateSelector, client, regionTagsReplacer, pdfGenerationSettingsProvider, factory)
         {
-            _provider = roamingPdfGenerationSettingsProvider;
+            _impactApiSettings = impactSettings.Value;
+            _impactApiClient = impactApiClient;
         }
         
         
@@ -52,10 +60,8 @@ namespace QA.DPC.PdfServer.RoamingApi
                 throw new TemplateNotFoundException();
 
 
-            var impactApiBaseUrl = await _provider.GetImpactApiBaseUrlForRoaming(customerCode, pdfTemplate, siteMode);
-
             var productDownloadUrl =
-                _impactApiClient.GetRoamingProductDownloadUrl(impactApiBaseUrl, cCode, isB2B, siteMode);
+                _impactApiClient.GetRoamingProductDownloadUrl(_impactApiSettings.BaseUrl, cCode, isB2B, siteMode);
 
 
             var request = new GenerateHtmlRequest

@@ -52,7 +52,6 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IPdfGenerationSettingsProvider, PdfGenerationSettingsProvider>();
             services.AddTransient<IDpcDbClient, DpcDbClient>();
             services.AddTransient<IDpcApiClient, DpcApiClient>();
-            services.AddTransient<IImpactApiClient, ImpactApiClient>();
             services.AddTransient<IPdfTemplateSelector, PdfTemplateSelector>();
             services.AddTransient<IHtmlGenerator, HtmlGenerator>();
             services.AddTransient<IProductJsonMapper, ProductJsonMapper>();
@@ -76,7 +75,7 @@ namespace QA.DPC.PDFServer.WebApi
                         var m = t.GetMethod("ConfigureServices");
                         if (m != null)
                         {
-                            m.Invoke(null, new object[] {services});
+                            m.Invoke(null, new object[] {services, Configuration});
                         }
                     }
                     

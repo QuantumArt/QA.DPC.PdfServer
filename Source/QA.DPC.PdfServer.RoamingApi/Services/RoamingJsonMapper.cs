@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using QA.DPC.PdfServer.RoamingApi.Interfaces;
 using QA.DPC.PDFServer.Services;
 using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.DataContract.HtmlGenerator;
@@ -9,23 +10,22 @@ using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
 
-namespace QA.DPC.PdfServer.RoamingApi
+namespace QA.DPC.PdfServer.RoamingApi.Services
 {
     public class RoamingJsonMapper : ProductJsonMapper, IRoamingJsonMapper
     {
+        private ImpactApiSettings _impactApiSettings;
+        
         public RoamingJsonMapper(
-            IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, 
-            IHttpClientFactory factory, RoamingPdfGenerationSettingsProvider provider, IImpactApiClient impactApiClient) 
+            IOptions<NodeServerSettings> settings, IOptions<ImpactApiSettings> impactSettings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, 
+            IHttpClientFactory factory, IImpactApiClient impactApiClient) 
             : base(settings, pdfTemplateSelector, dpcApiClient, factory)
         {
-            _provider = provider;
+            _impactApiSettings = impactSettings.Value;
             _impactApiClient = impactApiClient;
         }
 
-        private RoamingPdfGenerationSettingsProvider _provider;
-
         private IImpactApiClient _impactApiClient;
-
 
         public async Task<string> MapRoamingCountryJson(string customerCode, int? countryId, string countryCode, string category, bool isB2b, int? mapperId,
             int? templateId, bool forceDownload, SiteMode siteMode)
@@ -62,8 +62,7 @@ namespace QA.DPC.PdfServer.RoamingApi
             
 
             var mapper = await _dpcApiClient.GetProduct<PdfScriptMapper>(customerCode, mapperId.Value, true, siteMode);
-            var impactApiBaseUrl = await _provider.GetImpactApiBaseUrlForRoaming(customerCode, pdfTemplate, siteMode);
-            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(impactApiBaseUrl, cCode, isB2b, siteMode);
+            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(_impactApiSettings.BaseUrl, cCode, isB2b, siteMode);
 
             var request = new PreviewJsonRequest
             {

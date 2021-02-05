@@ -19,19 +19,17 @@ namespace QA.DPC.PDFServer.Services
         protected readonly NodeServerSettings _settings;
         protected readonly IPdfTemplateSelector _pdfTemplateSelector;
         protected readonly IDpcApiClient _client;
-        protected readonly IImpactApiClient _impactApiClient;
         private readonly IRegionTagsReplacer _regionTagsReplacer;
         private readonly IPdfGenerationSettingsProvider _roamingPdfGenerationSettingsProvider;
         private readonly IHttpClientFactory _factory;
 
         public HtmlGenerator(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector,
-            IDpcApiClient client, IImpactApiClient impactApiClient, IRegionTagsReplacer regionTagsReplacer,
+            IDpcApiClient client, IRegionTagsReplacer regionTagsReplacer,
             IPdfGenerationSettingsProvider roamingPdfGenerationSettingsProvider, IHttpClientFactory factory)
         {
             _settings = settings.Value;
             _pdfTemplateSelector = pdfTemplateSelector;
             _client = client;
-            _impactApiClient = impactApiClient;
             _regionTagsReplacer = regionTagsReplacer;
             _roamingPdfGenerationSettingsProvider = roamingPdfGenerationSettingsProvider;
             _factory = factory;

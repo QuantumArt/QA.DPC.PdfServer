@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using QA.DPC.PdfServer.RoamingApi.Interfaces;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.WebApi.Controllers;
 
