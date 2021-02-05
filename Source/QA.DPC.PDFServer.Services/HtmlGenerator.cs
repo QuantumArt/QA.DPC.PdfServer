@@ -102,7 +102,14 @@ namespace QA.DPC.PDFServer.Services
         protected async Task<string> GetHtml(string generatedHtmlRelativeUrl)
         {
             var client = _factory.CreateClient();
-            return await client.GetStringAsync($"{_settings.OutputBaseUrl}/{generatedHtmlRelativeUrl}");
+            if (!String.IsNullOrEmpty(_settings.OutputBaseUrl))
+            {
+                return await client.GetStringAsync($"{_settings.OutputBaseUrl}/{generatedHtmlRelativeUrl}");
+            }
+            else
+            {
+                return await client.GetStringAsync($"{_settings.GenerateBaseUrl}/{generatedHtmlRelativeUrl}");
+            }
         }
 
 

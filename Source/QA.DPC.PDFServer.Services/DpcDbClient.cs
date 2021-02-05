@@ -8,6 +8,7 @@ using QA.DotNetCore.Caching.Interfaces;
 using QA.DPC.PDFServer.Services.Exceptions;
 using QA.DPC.PDFServer.Services.Interfaces;
 using QA.DPC.PDFServer.Services.Settings;
+using QP.ConfigurationService.Models;
 
 namespace QA.DPC.PDFServer.Services
 {
@@ -48,7 +49,7 @@ namespace QA.DPC.PDFServer.Services
         }
 
 
-        public async Task<string> GetHighloadApiAuthToken(CustomerCodeConfiguration configuration)
+        public async Task<string> GetHighloadApiAuthToken(CustomerConfiguration configuration)
         {
             try
             {
@@ -74,7 +75,7 @@ namespace QA.DPC.PDFServer.Services
             return result;
         }
 
-        public Task<string> GetCachedHighloadApiAuthToken(CustomerCodeConfiguration configuration)
+        public Task<string> GetCachedHighloadApiAuthToken(CustomerConfiguration configuration)
         {
             var key = configuration.Name;
             var result = _cacheProvider.GetOrAdd(key,
@@ -83,16 +84,16 @@ namespace QA.DPC.PDFServer.Services
             return result;
         }
 
-        private static DbConnection CreateConnection(CustomerCodeConfiguration configuration)
+        private static DbConnection CreateConnection(CustomerConfiguration configuration)
         {
             switch (configuration.DbType)
             {
-                case DatabaseType.SqlServer:
+                case QP.ConfigurationService.Models.DatabaseType.SqlServer:
                     var connectionString = configuration.ConnectionString.Replace("Provider=SQLOLEDB;", "");
                     var sqlConnection = new SqlConnection(connectionString);
                     sqlConnection.Open();
                     return sqlConnection;
-                case DatabaseType.Postgres:
+                case QP.ConfigurationService.Models.DatabaseType.Postgres:
                     var npgsqlConnection = new NpgsqlConnection(configuration.ConnectionString);
                     npgsqlConnection.Open();
                     return npgsqlConnection;

@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
-using QA.DPC.PDFServer.Services.DataContract.DpcApi;
 using QA.DPC.PDFServer.Services.Interfaces;
 
 namespace QA.DPC.PdfServer.DevApi
@@ -13,14 +12,12 @@ namespace QA.DPC.PdfServer.DevApi
     {
         private readonly IConfigurationServiceClient _configurationServiceClient;
         private readonly IDpcDbClient _dpcDbClient;
-        private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider)
+        public ConfigurationController(IConfigurationServiceClient configurationServiceClient, IDpcDbClient dpcDbClient)
         {
             _configurationServiceClient = configurationServiceClient;
             _dpcDbClient = dpcDbClient;
-            _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
         }
 
         [HttpGet]
@@ -29,7 +26,7 @@ namespace QA.DPC.PdfServer.DevApi
             try
             {
                 var configuration = await _configurationServiceClient.GetCustomerCodeConfiguration(customerCode);
-                return new JsonResult(new {success = true, configuration = configuration});
+                return new JsonResult(new {success = true, configuration});
             }
             catch (Exception ex)
             {
