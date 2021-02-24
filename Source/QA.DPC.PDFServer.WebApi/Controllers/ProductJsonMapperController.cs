@@ -29,7 +29,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             catch (GetProductJsonException ex)
             {
                 Logger.Error(ex, "Error while getting product json");
-                return new JsonResult(new { success = false, error = $"Error while getting product json: {ex.Message}" });
+                return new JsonResult(new { success = false, error = $"Error while getting product json: {ex.InnerException?.Message ?? ex.Message}" });
             }
             catch (TemplateNotFoundException ex)
             {

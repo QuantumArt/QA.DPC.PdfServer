@@ -41,11 +41,15 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddHttpClient();
             services.Configure<ConfigurationServiceSettings>(Configuration.GetSection("ConfigurationService"));
             services.Configure<DpcApiSettings>(Configuration.GetSection("DPCApi"));
+            services.Configure<ExtraSettings>(Configuration.GetSection("Extra"));
             services.Configure<PdfTemplateSelectorSettings>(Configuration.GetSection("PdfTemplateSelector"));
             services.Configure<NodeServerSettings>(Configuration.GetSection("NodeServer"));
             services.Configure<PdfStaticFilesSettings>(Configuration.GetSection("PdfStaticFiles"));
             services.Configure<PdfSettings>(Configuration.GetSection("PdfPageSettings"));
             services.Configure<CacheSettings>(Configuration.GetSection("CacheSettings"));
+            
+            var props = new ExtraSettings();
+            Configuration.Bind("Extra", props);
 
             services.AddSingleton<ICacheProvider, VersionedCacheCoreProvider>();
             services.AddTransient<IConfigurationServiceClient, ConfigurationServiceClient>();
@@ -58,18 +62,23 @@ namespace QA.DPC.PDFServer.WebApi
             services.AddTransient<IRegionTagsReplacer, RegionTagsReplacer>();
             services.AddWkhtmltopdf();
             services.AddMemoryCache();
-            services.AddMvc().ConfigureApplicationPartManager(apm =>
+            services.AddSwaggerGen();
+            services.AddControllers().ConfigureApplicationPartManager(apm =>
             {
                 apm.ApplicationParts.Clear();
+                apm.ApplicationParts.Add(new AssemblyPart(typeof(Startup).Assembly));
                 if (CurrentEnvironment.IsDevelopment())
                 {
                     apm.ApplicationParts.Add(new AssemblyPart(typeof(ConfigurationController).Assembly));
-
-                    var libName = "QA.DPC.PdfServer.RoamingApi";
+                }
+                
+                foreach (var library in props.Libraries)
+                {
                     var assembly = Assembly.LoadFile(Path.Combine(
-                        AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, libName + ".dll"
+                        AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, library + ".dll"
                     ));
-                    var t = assembly.GetType($"{libName}.Startup");
+                    apm.ApplicationParts.Add(new AssemblyPart(assembly));
+                    var t = assembly.GetType($"{library}.Startup");
                     if (t != null)
                     {
                         var m = t.GetMethod("ConfigureServices");
@@ -78,8 +87,9 @@ namespace QA.DPC.PDFServer.WebApi
                             m.Invoke(null, new object[] {services, Configuration});
                         }
                     }
-                    
+
                 }
+
             });
         }
 
@@ -96,11 +106,18 @@ namespace QA.DPC.PDFServer.WebApi
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+            
             app.UseRouting();
             app.UseEndpoints(routes =>
             {
                 routes.MapControllers();
             });
+
             
             var staticFileSettings = Configuration.GetSection("PdfStaticFiles").Get<PdfStaticFilesSettings>();
             if (staticFileSettings.ServeStatic)
