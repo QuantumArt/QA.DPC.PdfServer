@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using QA.DPC.PDFServer.PdfGenerator;
@@ -42,28 +41,30 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
 
         protected ActionResult GetGenerationActionResult(bool attachment, bool asHtml, string generatedHtml)
         {
-            if (asHtml)
+            switch (asHtml)
             {
-                if (attachment)
+                case true when attachment:
                 {
                     var htmlBytes = Encoding.UTF8.GetBytes(generatedHtml);
-                    Response.Headers.Add("Content-Type", "text/html");
-                    return new FileContentResult(htmlBytes, "text/html");
+                    return new FileContentResult(htmlBytes, "text/html; charset=utf-8");
                 }
-                return new JsonResult(new { success = true, generatedHtml = generatedHtml });
+                case true when !attachment:
+                    return new JsonResult(new { success = true, generatedHtml });
+                case false when attachment:
+                {
+                    var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider);
+                    return new FileContentResult(pdf, "application/pdf");
+                }
+                default:
+                {
+                    var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider, _pdfStaticFilesSettings.RootOutputDirectory);
+                    return new JsonResult(new
+                    {
+                        success = true,
+                        pdfRelativePath = $"{_pdfStaticFilesSettings.DirectoryRelativePath}/{fileName}"
+                    });
+                }
             }
-            if (attachment)
-            {
-                var pdf = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider);
-                Response.Headers.Add("Content-Type", "application/pdf");
-                return new FileContentResult(pdf, "application/pdf");
-            }
-            var fileName = PdfGenerator.PdfGenerator.GeneratePdf(generatedHtml, _pdfPageSettings, _serviceProvider, _pdfStaticFilesSettings.RootOutputDirectory);
-            return new JsonResult(new
-            {
-                success = true,
-                pdfRelativePath = $"{_pdfStaticFilesSettings.DirectoryRelativePath}/{fileName}"
-            });
         }
     }
 }

@@ -12,11 +12,11 @@ using QA.DPC.PDFServer.Services.Settings;
 namespace QA.DPC.PDFServer.WebApi.Controllers
 {
     
-    public class PdfController : BaseController
+    public class ProductController : BaseController
     {
         private readonly IHtmlGenerator _htmlGenerator;
 
-        public PdfController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, IServiceProvider serviceProvider)
+        public ProductController(IHtmlGenerator htmlGenerator, IOptions<PdfStaticFilesSettings> pdfStaticFilesSettings, IOptions<PdfSettings> pdfSettings, IServiceProvider serviceProvider)
         {
             _htmlGenerator = htmlGenerator;
             _pdfStaticFilesSettings = pdfStaticFilesSettings.Value;
@@ -24,7 +24,7 @@ namespace QA.DPC.PDFServer.WebApi.Controllers
             _serviceProvider = serviceProvider;
         }
 
-        // GET api/pdf/5?category=print
+        // GET api/product/5?category=print
         [HttpGet("{id}")]
         [HttpGet("{mode}/{id}")]
         public async Task<ActionResult> Get(string customerCode, int id, string category, int? templateId, bool asHtml, bool attachment, int? regionId, bool forceDownload, string mode = "live" )

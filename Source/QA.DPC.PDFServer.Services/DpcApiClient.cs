@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -196,6 +197,10 @@ namespace QA.DPC.PDFServer.Services
             }
 
             var response = await client.SendAsync(request);
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw new GetProductJsonException("Access to product API denied");
+            }
             return await response.Content.ReadAsStringAsync();
         }
     }
