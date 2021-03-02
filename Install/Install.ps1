@@ -26,9 +26,9 @@ param (
     ## Dpc.PdfServer port
     [Parameter()]
     [int] $pdfServerPort = 8035,
-    ## Dpc.WebApi port
+    ## Dpc.SearchApi port
     [Parameter()]
-    [int] $webApiPort = 8016,
+    [int] $searchApiPort = 8014,
     ## Folder to install services
     [Parameter(Mandatory = $true)]
     [ValidateScript({ if ($_) { Test-Path $_} })]
@@ -47,7 +47,10 @@ param (
     [string] $pdfServerName = 'Dpc.PdfServer',
     ## Log folder path
     [Parameter()]
-    [string] $logPath = 'C:\Logs'
+    [string] $logPath = 'C:\Logs',
+    ## Temp folder path
+    [Parameter()]
+    [string] $tempPath = 'C:\Temp'
 )
 
 If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
@@ -87,8 +90,8 @@ $scriptName = Join-Path $currentPath "InstallDpcPdfContentViewers.ps1"
 Invoke-Expression "$scriptName -qp $qpName -name $pdfContentViewers -pdfServerPort $pdfServerPort" 
 
 $scriptName = Join-Path $currentPath "InstallDpcPdfServer.ps1"
-Invoke-Expression "$scriptName -port $pdfServerPort -pdfLayoutPort $pdfLayoutPort -webApiPort $webApiPort -siteName '$pdfServerName' -LogPath '$logPath'"
+Invoke-Expression "$scriptName -port $pdfServerPort -pdfLayoutPort $pdfLayoutPort -searchApiPort $searchApiPort -siteName '$pdfServerName' -LogPath '$logPath'"
 
 $scriptName = Join-Path $currentPath "InstallDpcPdfLayout.ps1"
-Invoke-Expression "$scriptName -port $pdfLayoutPort -InstallRoot $installRoot -Name '$pdfLayoutName' -LogPath '$logPath'"
+Invoke-Expression "$scriptName -port $pdfLayoutPort -InstallRoot $installRoot -Name '$pdfLayoutName' -LogPath '$logPath' -TempPath '$tempPath'"
 

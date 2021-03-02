@@ -9,16 +9,13 @@ DPC.PdfLayout is a NodeJS windows service for generating HTML from JS-templates
   .\InstallDpcPdfLayout.ps1 -actionsPort 8011 -notifyPort 8012 -installRoot 'C:\QA' -logPath 'C:\Logs' 
 
 .EXAMPLE
-  .\InstallDpcPdfLayout.ps1 -actionsPort 8011 -notifyPort 8012 -installRoot 'C:\QA' -logPath 'C:\Logs' -name 'DPC.ActionsService' 
+  .\InstallDpcPdfLayout.ps1 -actionsPort 8011 -notifyPort 8012 -installRoot 'C:\QA' -logPath 'C:\Logs' -name 'DPC.PdfLayout' 
 
 #>
 param(
-    ## Service Name
-    [Parameter()]
-    [String] $name = 'DPC.PdfLayout',
     ## Service Display Name
     [Parameter()]
-    [String] $displayName = 'DPC PDF Layout Service',
+    [String] $name = 'DPC.PdfLayout',
     ## Service Description
     [Parameter()]
     [String] $description = 'Generates HTML from JS-templates',
@@ -36,7 +33,10 @@ param(
     [int] $port,
     ## Logs folder
     [Parameter(Mandatory = $true)]
-    [String] $logPath   
+    [String] $logPath,
+    ## Temp folder
+    [Parameter(Mandatory = $true)]
+    [String] $tempPath  
 
 )
 
@@ -48,32 +48,33 @@ If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 }
 
 $currentPath = Split-path -parent $MyInvocation.MyCommand.Definition
-
-. (Join-Path $currentPath "Modules\Install-Service.ps1")
-
 $parentPath = Split-Path -parent $currentPath
 $sourcePath = Join-Path $parentPath "PdfLayout"
 
-$installParams = @{
-  name = $name;
-  displayName = $displayName;
-  description = $description;
-  installRoot = $installRoot;
-  login = $login;
-  password = $password;
-  binaryName = "daemon\qadpcnodepdfgenerator.exe";
-  source = $sourcePath;
-}
-
-Install-Service @installParams
-
+if (-not(Test-Path $installRoot)) { New-Item $installRoot -ItemType Directory | Out-Null }
 $installPath = Join-Path $installRoot $name
-$defaultPath = Join-Path $installPath "config\default.js"
-$defaultContent = Get-Content -Path $defaultPath
-$defaultContent = $defaultContent.Replace("apiPort: 3000", "apiPort: " + $port)
-$defaultContent | Out-File $defaultPath
+if (Test-Path $installPath) { throw "Service folder $installPath already exists" } else { New-Item $installPath -ItemType Directory | Out-Null }
+Write-Host "Copy item from $sourcePath to $installPath ..." 
+Copy-Item "$sourcePath\*" "$installPath" -Force -Recurse
+Write-Host "Done" 
 
-$s = Get-Service $name
+$defaultPath = Join-Path $installPath ".env"
+@"
+SVC_NAME=$name
+SVC_DESCRIPTION=$description
+SVC_LOGIN=$login
+SVC_PASSWORD=$password
+PORT=$port
+WORKDIR_PATH=$tempPath\$name.workdir
+LOGS_PATH=C:\Logs\$name
+OUTPUT_PATH=output
+"@ | Out-File $defaultPath
+
+Push-Location $installPath
+Invoke-Expression "node installService.js"
+Pop-Location
+
+$s = Get-Service -DisplayName $name
 
 if ( $s.Status -eq "Stopped")
 {

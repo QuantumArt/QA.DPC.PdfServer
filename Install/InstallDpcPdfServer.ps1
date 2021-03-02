@@ -21,9 +21,9 @@ param(
     ## DPC.PdfLayout port
     [Parameter(Mandatory = $true)]
     [int] $pdfLayoutPort,
-    ## DPC.PdfLayout port
+    ## DPC.SearchApi port
     [Parameter(Mandatory = $true)]
-    [int] $webApiPort,
+    [int] $searchApiPort,
     ## Logs folder
     [Parameter(Mandatory = $true)]
     [String] $logPath
@@ -78,12 +78,14 @@ $nlog.Save($nLogPath)
 $appSettingsPath = Join-Path $sitePath "appsettings.json"
 $json = Get-Content -Path $appSettingsPath | ConvertFrom-Json
 
+$json.PSObject.Properties.Remove("ConfigurationService")
 
 $nodeServer = ($json | Get-Member "NodeServer")
 $nodeServer | Add-Member NoteProperty "GenerateBaseUrl" "http://${env:COMPUTERNAME}:$pdfLayoutPort" -Force
+$nodeServer | Add-Member NoteProperty "OutputBaseUrl" "http://${env:COMPUTERNAME}:$pdfLayoutPor/output" -Force
 
-$nodeServer = ($json | Get-Member "DPCDbApi")
-$nodeServer | Add-Member NoteProperty "BaseUrl" "http://${env:COMPUTERNAME}:$webApiPort" -Force
+$nodeServer = ($json | Get-Member "DPCApi")
+$nodeServer | Add-Member NoteProperty "BaseUrl" "http://${env:COMPUTERNAME}:$searchApiPort" -Force
 
 Set-ItemProperty $appSettingsPath -name IsReadOnly -value $false
 $json | ConvertTo-Json | Out-File $appSettingsPath

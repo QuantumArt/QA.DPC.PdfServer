@@ -52,7 +52,7 @@ function DeleteService
      [string] $installRoot
    )
 
-   $s = Get-Service $name -ErrorAction SilentlyContinue
+   $s = Get-Service -DisplayName $name -ErrorAction SilentlyContinue
 
     if ($s){
         if ( $s.Status -eq "Running"){
@@ -63,7 +63,7 @@ function DeleteService
             Write-Host "$name stopped"
         }
 
-        $sobj = Get-WmiObject -Class Win32_Service -Filter "Name='$name'" 
+        $sobj = Get-WmiObject -Class Win32_Service -Filter "DisplayName='$name'" 
         $sobj.Delete() | Out-Null    
         Write-Host "$name deleted"   
     }
