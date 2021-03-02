@@ -22,12 +22,6 @@ param(
     ## Path to install DPC Services
     [Parameter(Mandatory = $true)]
     [String] $installRoot,
-    ## User account to run service
-    [Parameter()]
-    [String] $login = 'NT AUTHORITY\SYSTEM',
-    ## User password to run service
-    [Parameter()]
-    [String] $password = 'dummy',
     ## Service port to run
     [Parameter(Mandatory = $true)]
     [int] $port,
@@ -62,8 +56,6 @@ $defaultPath = Join-Path $installPath ".env"
 @"
 SVC_NAME=$name
 SVC_DESCRIPTION=$description
-SVC_LOGIN=$login
-SVC_PASSWORD=$password
 PORT=$port
 WORKDIR_PATH=$tempPath\$name.workdir
 LOGS_PATH=C:\Logs\$name
