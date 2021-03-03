@@ -25,6 +25,7 @@ If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 }
 
 $currentPath = Split-Path -parent $MyInvocation.MyCommand.Definition
+$parentPath = Split-Path -parent $currentPath
 
 . (Join-Path $currentPath "Modules\Get-SiteOrApplication.ps1")
 
