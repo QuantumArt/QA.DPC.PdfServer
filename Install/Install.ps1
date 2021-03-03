@@ -45,6 +45,9 @@ param (
     ## Dpc.SearchApi site name
     [Parameter()]
     [string] $pdfServerName = 'Dpc.PdfServer',
+    ## Upload folder name
+    [Parameter()]
+    [string] $uploadFolderName = 'test_catalog',
     ## Log folder path
     [Parameter()]
     [string] $logPath = 'C:\Logs',
@@ -83,6 +86,9 @@ if ($cleanUp) {
     Invoke-Expression "$uninstallPath $params"
 }
 
+$def = Get-Item "IIS:\sites\Default Web Site" -ErrorAction SilentlyContinue
+if (!$def) { throw "Default Web Site doesn't exist"}
+
 $validationPath = Join-Path $currentPath "Validate.ps1"
 Invoke-Expression "$validationPath -pdfServerPort $pdfServerPort -pdfLayoutPort $pdfLayoutPort"
 
@@ -95,3 +101,5 @@ Invoke-Expression "$scriptName -port $pdfServerPort -pdfLayoutPort $pdfLayoutPor
 $scriptName = Join-Path $currentPath "InstallDpcPdfLayout.ps1"
 Invoke-Expression "$scriptName -port $pdfLayoutPort -InstallRoot $installRoot -Name '$pdfLayoutName' -LogPath '$logPath' -TempPath '$tempPath'"
 
+$scriptName = Join-Path $currentPath "InstallTemplates.ps1"
+Invoke-Expression "$scriptName -folderName $uploadFolderName"
