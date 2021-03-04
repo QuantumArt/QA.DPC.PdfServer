@@ -4,7 +4,8 @@
 
     .DESCRIPTION
     Checks:
-    - .NET Core Runtime 3.1.8 is installed
+    - ASP.NET Core Runtime 3.1.12 or newer is installed
+    - NodeJS v10.x installed
     - QP is installed
     - Ports are available
 
@@ -51,15 +52,28 @@ function Test-Port
   
 }
 
-$requiredRuntime = '3.1.8'
+$requiredRuntime = '3.1.1[2-9]'
   
 Try {
-    $actualRuntime = (Get-ChildItem (Get-Command dotnet).Path.Replace('dotnet.exe', 'shared\Microsoft.AspNetCore.App')).Name
+    $actualRuntimes = (Get-ChildItem (Get-Command dotnet).Path.Replace('dotnet.exe', 'shared\Microsoft.AspNetCore.App')).Name
 } Catch {
     Write-Error $_.Exception
     Throw "Check ASP.NET Core runtime : failed"
+}
+
+if (!($actualRuntimes | Where-Object {$_ -match $requiredRuntime})){ Throw "Check ASP.NET Core runtime 3.1.x (3.1.12 or newer) : failed" }
+
+
+$requiredNodeVersion = 'v10.[0-9.]'
+Try {
+    $nodeVersion = Invoke-Expression "node --version"
+} Catch {
+    Write-Error $_.Exception
+    Throw "Check NodeJS version : failed"
 } 
-If ($actualRuntime -notcontains $requiredRuntime){ Throw "Check ASP.NET Core runtime $requiredRuntime : failed" }
+
+if ($nodeVersion -notmatch $requiredNodeVersion){ Throw "Check NodeJS version 10.x : failed" }
+
 
 $currentPath = Split-Path -parent $MyInvocation.MyCommand.Definition
 . (Join-Path $currentPath "Modules\Get-SiteOrApplication.ps1")
