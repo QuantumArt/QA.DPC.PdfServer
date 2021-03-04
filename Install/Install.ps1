@@ -45,6 +45,9 @@ param (
     ## Dpc.SearchApi site name
     [Parameter()]
     [string] $pdfServerName = 'Dpc.PdfServer',
+    ## Customer code
+    [Parameter()]
+    [string] $customerCode = 'test_catalog',
     ## Upload folder name
     [Parameter()]
     [string] $uploadFolderName = 'test_catalog',
@@ -89,8 +92,14 @@ if ($cleanUp) {
 $def = Get-Item "IIS:\sites\Default Web Site" -ErrorAction SilentlyContinue
 if (!$def) { throw "Default Web Site doesn't exist"}
 
+$customer = Get-CustomerCode -CustomerCode $customerCode
+if (!$customer) { throw "Customer code $customerCode doesn't exist"}
+
 $validationPath = Join-Path $currentPath "Validate.ps1"
 Invoke-Expression "$validationPath -pdfServerPort $pdfServerPort -pdfLayoutPort $pdfLayoutPort"
+
+$scriptName = Join-Path $currentPath "UpdateCustomerCode.ps1"
+Invoke-Expression "$scriptName -customerCode $customerCode"
 
 $scriptName = Join-Path $currentPath "InstallDpcPdfContentViewers.ps1"
 Invoke-Expression "$scriptName -qp $qpName -name $pdfContentViewers -pdfServerPort $pdfServerPort" 
