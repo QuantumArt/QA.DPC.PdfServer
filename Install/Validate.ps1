@@ -39,6 +39,7 @@ function Test-Port
     )
 
     if ($port) {
+        Write-Host "Checking port $port..."
         $connected = $false
 
         Try{
@@ -51,6 +52,7 @@ function Test-Port
     }
   
 }
+
 
 $requiredRuntime = '3.1.1[2-9]'
   
