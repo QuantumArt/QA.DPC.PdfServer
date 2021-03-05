@@ -60,7 +60,7 @@ PORT=$port
 WORKDIR_PATH=$tempPath\$name.workdir
 LOGS_PATH=C:\Logs\$name
 OUTPUT_PATH=output
-"@ | Out-File $defaultPath
+"@ | Out-File $defaultPath -Encoding utf8
 
 Push-Location $installPath
 Invoke-Expression "node installService.js"

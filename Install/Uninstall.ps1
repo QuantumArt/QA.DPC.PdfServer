@@ -154,5 +154,3 @@ if (-not(Get-Module -Name WebAdministration)) {
 DeleteService -name $pdfLayoutName -installRoot $installRoot
 DeleteSite -qp $qpName -name $pdfContentViewers
 DeleteSite -name $pdfServerName
-
-Remove-CustomerCode -CustomerCode $customerCode

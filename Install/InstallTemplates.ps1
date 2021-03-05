@@ -33,7 +33,7 @@ $def = Get-SiteOrApplication "Default Web Site"
 if (!$def) { throw "Default Web Site doesn't exist"}
 
 $root = $def.PhysicalPath -replace "%SystemDrive%",$env:SystemDrive
-$sitePath = Join-Path $root $siteName
+$sitePath = Join-Path $root $folderName
 $templateContents = @(475, 581)
 $mapperContents = @(473, 579)
 

@@ -48,9 +48,6 @@ param (
     ## Customer code
     [Parameter()]
     [string] $customerCode = 'test_catalog',
-    ## Upload folder name
-    [Parameter()]
-    [string] $uploadFolderName = 'test_catalog',
     ## Log folder path
     [Parameter()]
     [string] $logPath = 'C:\Logs',
@@ -111,4 +108,4 @@ $scriptName = Join-Path $currentPath "InstallDpcPdfLayout.ps1"
 Invoke-Expression "$scriptName -port $pdfLayoutPort -InstallRoot $installRoot -Name '$pdfLayoutName' -LogPath '$logPath' -TempPath '$tempPath'"
 
 $scriptName = Join-Path $currentPath "InstallTemplates.ps1"
-Invoke-Expression "$scriptName -folderName $uploadFolderName"
+Invoke-Expression "$scriptName -folderName $customerCode"

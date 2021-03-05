@@ -58,7 +58,9 @@ New-Item -Path $sitePath -ItemType Directory -Force | Out-Null
 $parentPath = Split-Path -parent $currentPath
 $sourcePath = Join-Path $parentPath "PdfServer"
 
+Write-Host "Copying files from $sourcePath to $sitePath..."
 Copy-Item "$sourcePath\*" -Destination $sitePath -Force -Recurse
+Write-Host "Done"
 
 $nLogPath = Join-Path $sitePath "nlog.config"
 
@@ -80,12 +82,12 @@ $json = Get-Content -Path $appSettingsPath | ConvertFrom-Json
 
 $json.PSObject.Properties.Remove("ConfigurationService")
 
-$nodeServer = ($json | Get-Member "NodeServer")
+$nodeServer = $json.NodeServer
 $nodeServer | Add-Member NoteProperty "GenerateBaseUrl" "http://${env:COMPUTERNAME}:$pdfLayoutPort" -Force
-$nodeServer | Add-Member NoteProperty "OutputBaseUrl" "http://${env:COMPUTERNAME}:$pdfLayoutPor/output" -Force
+$nodeServer | Add-Member NoteProperty "OutputBaseUrl" "http://${env:COMPUTERNAME}:$pdfLayoutPort/output" -Force
 
-$nodeServer = ($json | Get-Member "DPCApi")
-$nodeServer | Add-Member NoteProperty "BaseUrl" "http://${env:COMPUTERNAME}:$searchApiPort" -Force
+$nodeServer = $json.DPCApi
+$nodeServer | Add-Member NoteProperty "BaseUrl" "http://${env:COMPUTERNAME}:$searchApiPort/api" -Force
 
 Set-ItemProperty $appSettingsPath -name IsReadOnly -value $false
 $json | ConvertTo-Json | Out-File $appSettingsPath

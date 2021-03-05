@@ -6,7 +6,7 @@ Installs DPC.PdfContentViewers
 DPC.PdfContentViewers is a web application that contains Custom Actions for generating HTML and PDF
 
 .EXAMPLE
-  .\InstallDpcPdfContentViewers.ps1 -name PdfMedia
+  .\InstallDpcPdfContentViewers.ps1 -name PdfContentViewers
 #>
 param(
     ## QP site name
@@ -14,7 +14,7 @@ param(
     [String] $qp ='QP8',
     ## Dpc.Admin application name
     [Parameter()]
-    [String] $name = 'DPC.PdfMedia',
+    [String] $name = 'DPC.PdfContentViewers',
     [Parameter(Mandatory = $true)]
     [int] $pdfServerPort
 
@@ -38,7 +38,7 @@ $app = Get-SiteOrApplication -name $qp -application $name
 if ($app) { throw "application $name in $qp already exists"}
 
 $parentPath = Split-Path -parent $currentPath
-$sourcePath = Join-Path $parentPath "PdfMedia"
+$sourcePath = Join-Path $parentPath "PdfContentViewers"
 
 $qpApp = Get-SiteOrApplication -name $qp 
 $root = Split-Path -parent $qpApp.PhysicalPath
@@ -47,13 +47,25 @@ $appPath = Join-Path $root $name
 
 New-Item -Path $appPath -ItemType Directory -Force | Out-Null
 
+Write-Host "Copying files from $sourcePath to $appPath..."
 Copy-Item "$sourcePath\*" -Destination $appPath -Force -Recurse
+Write-Host "Done"
 
-Get-ChildItem "$appPath\src\*index.html" -recurse
-{
-    (Get-Content $_ | ForEach-Object {$_ -replace "||API_URL||", "http://${env:COMPUTERNAME}:$pdfServerPort"}) | Set-Content $_
+Get-ChildItem "$appPath\*\index.html" | % { (( Get-Content $_ ) -replace "\|\|API_URL\|\|", "http://${env:COMPUTERNAME}:$pdfServerPort/api") | Set-Content $_ -Encoding UTF8 }
+
+$adminPool = Get-Item "IIS:\AppPools\$qp.$name" -ErrorAction SilentlyContinue
+
+if (!$adminPool) { 
+
+    Write-Host "Creating application pool $qp.$name..."
+
+    $adminPool = New-Item –Path "IIS:\AppPools\$qp.$name"
+    $adminPool | Set-ItemProperty -Name managedRuntimeVersion -Value 'v4.0'
+
+    Write-Host "Done"
 }
 
-New-Item "IIS:\sites\$qp\$name" -physicalPath $appPath -type Application | Out-Null
+
+New-Item "IIS:\sites\$qp\$name" -physicalPath $appPath -applicationPool "$qp.$name" -type Application | Out-Null
 
 

@@ -44,9 +44,10 @@ $cnnParams = @{
     DbType = if ($customer.db_type -eq "postgres") { 1 } else { 0 }
 }
 
-$bittrue =  if ($dbType -eq 0) { "1" } else {"true"}
-$customActionQuery = "update custom_action set show_in_menu = $bittrue where alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer')"
-Execute-Sql @cnnParams -query $customActionQuery
+$bittrue =  if ($dbType -eq 0) { "1" } else { "true" }
+$now = if ($dbType -eq 0) { "getdate()" } else { "now()" }
+$customActionQuery = "update custom_action set show_in_menu = $bittrue, modified = $now where alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer')"
+Execute-Sql @cnnParams -query $customActionQuery | Out-Null
 
 Write-Host "Database ${cnnParams.Database} updated"  
 
