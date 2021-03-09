@@ -46,7 +46,19 @@ $cnnParams = @{
 
 $bittrue =  if ($dbType -eq 0) { "1" } else { "true" }
 $now = if ($dbType -eq 0) { "getdate()" } else { "now()" }
-$customActionQuery = "update custom_action set show_in_menu = $bittrue, modified = $now where alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer')"
+
+$customActionQuery = "
+delete from context_menu_item where action_id in (select id from backend_action where id in (select action_id From custom_action where alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer')));
+
+insert into context_menu_item(context_menu_id, action_id, name, icon, 'order')
+select cm.id, ba.id, ca.name, ca.icon_url, ca.order + 1000 From custom_action ca 
+inner join backend_action ba on ca.action_id = ba.id
+inner join entity_type et on ba.entity_type_id = et.id
+inner join context_menu cm on et.code = cm.code
+where ca.alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer');
+
+update custom_action set show_in_menu = $bittrue, modified = $now where alias in ('pdf_viewer', 'html_viewer', 'mapping_viewer');
+"
 Execute-Sql @cnnParams -query $customActionQuery | Out-Null
 
 Write-Host "Database ${cnnParams.Database} updated"  
