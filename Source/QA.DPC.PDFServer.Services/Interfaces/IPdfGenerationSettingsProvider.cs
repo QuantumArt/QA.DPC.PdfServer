@@ -8,6 +8,5 @@ namespace QA.DPC.PDFServer.Services.Interfaces
         Task<PdfGenerationSettings> GetDefaultSettings(string customerCode, SiteMode siteMode);
         Task<PdfGenerationSettings> GetSettings(string customerCode, PdfTemplate template, SiteMode siteMode);
 
-        Task<string> GetImpactApiBaseUrlForRoaming(string customerCode, PdfTemplate pdfTemplate, SiteMode siteMode);
     }
 }

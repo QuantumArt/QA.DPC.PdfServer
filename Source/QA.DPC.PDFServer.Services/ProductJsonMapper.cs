@@ -18,22 +18,16 @@ namespace QA.DPC.PDFServer.Services
 {
     public class ProductJsonMapper : IProductJsonMapper
     {
-        private readonly IPdfTemplateSelector _pdfTemplateSelector;
-        private readonly IDpcApiClient _dpcApiClient;
-//        private readonly IDpcDbApiClient _dpcApiDbApiClient;
-        private readonly IImpactApiClient _impactApiClient;
-        private readonly IPdfGenerationSettingsProvider _pdfGenerationSettingsProvider;
-        private readonly NodeServerSettings _settings;
-        private readonly IHttpClientFactory _factory;
+        protected  readonly IPdfTemplateSelector _pdfTemplateSelector;
+        protected readonly IDpcApiClient _dpcApiClient;
+        protected  readonly NodeServerSettings _settings;
+        protected  readonly IHttpClientFactory _factory;
 
 
-        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IImpactApiClient impactApiClient, IPdfGenerationSettingsProvider pdfGenerationSettingsProvider, IHttpClientFactory factory)
+        public ProductJsonMapper(IOptions<NodeServerSettings> settings, IPdfTemplateSelector pdfTemplateSelector, IDpcApiClient dpcApiClient, IHttpClientFactory factory)
         {
             _pdfTemplateSelector = pdfTemplateSelector;
             _dpcApiClient = dpcApiClient;
-//            _dpcApiDbApiClient = dpcApiDbApiClient;
-            _impactApiClient = impactApiClient;
-            _pdfGenerationSettingsProvider = pdfGenerationSettingsProvider;
             _settings = settings.Value;
             _factory = factory;
         }
@@ -92,74 +86,7 @@ namespace QA.DPC.PDFServer.Services
             throw new ProductMappingException(response.Error?.Message ?? "Unknown error while mapping product");
         }
 
-        public async Task<string> MapRoamingCountryJson(string customerCode, int? countryId, string countryCode, string category, bool isB2b, int? mapperId,
-            int? templateId, bool forceDownload, SiteMode siteMode)
-        {
-            string cCode = null;
-            if (countryId.HasValue)
-            {
-                var article = await _dpcApiClient.GetProduct<RoamingCountry>(customerCode, countryId.Value, siteMode);
-                if (article != null)
-                {
-                    cCode = article.Alias;
-                }
-            }
-            else
-            {
-                cCode = countryCode;
-            }
-
-
-            PdfTemplate pdfTemplate = null;
-            if (!mapperId.HasValue)
-            {
-                if (templateId.HasValue)
-                {
-                    pdfTemplate = await _dpcApiClient.GetProduct<PdfTemplate>(customerCode, templateId.Value, siteMode);
-                }
-                else
-                {
-                    pdfTemplate = await _pdfTemplateSelector.GetPdfTemplateForRoaming(customerCode, cCode, category, isB2b, siteMode);
-                }
-                mapperId = pdfTemplate.PdfScriptMapper.Id;
-            }
-
-            
-
-            var mapper = await _dpcApiClient.GetProduct<PdfScriptMapper>(customerCode, mapperId.Value, true, siteMode);
-            var impactApiBaseUrl = await _pdfGenerationSettingsProvider.GetImpactApiBaseUrlForRoaming(customerCode, pdfTemplate, siteMode);
-            var productDownloadUrl = _impactApiClient.GetRoamingProductDownloadUrl(impactApiBaseUrl, cCode, isB2b, siteMode);
-
-            var request = new PreviewJsonRequest
-            {
-                TariffData = new GenerateHtmlFileInfo
-                {
-                    Id = $"{cCode}_{isB2b}".GetHashCode(), // не очень правильно, но в данном случае - сойдет
-                    Timestamp = ConvertToTimestamp(DateTime.UtcNow),
-                    ForceDownload = forceDownload,
-                    DownloadUrl = productDownloadUrl,
-                    SiteMode = siteMode.ToString()
-                },
-
-                MapperData = new GenerateHtmlFileInfo
-                {
-                    Id = mapperId.Value,
-                    Timestamp = ConvertToTimestamp(mapper.Timestamp),
-                    ForceDownload = forceDownload,
-                    DownloadUrl = $"{_settings.DpcStaticFilesScheme}:{mapper.PdfScriptMapperFile.AbsoluteUrl}",
-                    SiteMode = "db"
-                },
-            };
-
-            var response = await MakeRequest(request);
-            if (response.Success)
-                return response.Json;
-
-            throw new ProductMappingException(response.Error?.Message ?? "Unknown error while mapping product");
-
-        }
-
-        private async Task<PreviewJsonResponse> MakeRequest(PreviewJsonRequest request)
+        protected async Task<PreviewJsonResponse> MakeRequest(PreviewJsonRequest request)
         {
             var client = _factory.CreateClient();
             var result = await client.PostAsync($"{_settings.GenerateBaseUrl}/previewJson",
@@ -169,7 +96,7 @@ namespace QA.DPC.PDFServer.Services
             return JsonConvert.DeserializeObject<PreviewJsonResponse>(stringResult);
         }
 
-        private static long ConvertToTimestamp(DateTime date)
+        protected static long ConvertToTimestamp(DateTime date)
         {
             return ((DateTimeOffset)date).ToUnixTimeSeconds();
         }

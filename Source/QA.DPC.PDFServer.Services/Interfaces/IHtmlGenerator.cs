@@ -7,6 +7,5 @@ namespace QA.DPC.PDFServer.Services.Interfaces
     {
         Task<string> GenerateHtml(string customerCode, int productId, string category, int? templateId, int? regionId, SiteMode siteMode, bool forceDownload);
 
-        Task<string> GenerateRoamingHtml(string customerCode, string category, int? roamingCountryId, string countryCode, bool isB2B, int? templateId, SiteMode siteMode, bool forceDownload);
     }
 }

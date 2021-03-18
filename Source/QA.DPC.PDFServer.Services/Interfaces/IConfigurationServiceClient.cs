@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
+using QP.ConfigurationService.Models;
 
 namespace QA.DPC.PDFServer.Services.Interfaces
 {
     public interface IConfigurationServiceClient
     {
-        Task<CustomerCodeConfiguration> GetCustomerCodeConfiguration(string customerCode);
-        Task<string> GetCustomerCodeConfigurationJson(string customerCode);
+        Task<CustomerConfiguration> GetCustomerCodeConfiguration(string customerCode);
     }
 }

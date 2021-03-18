@@ -252,6 +252,6 @@ paket-files/
 *.sln.iml
 /Source/QA.DPC.PDFServer.WebApi/wwwroot/Output
 
+**/appsettings.*.json
 
-!Bin/*
-!mycert.pfx
+**/projectfiles.tar
